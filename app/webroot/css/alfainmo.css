@@ -1,0 +1,163 @@
+body { font-size: 12px; font-family: Arial, Helvetica, sans-serif; background-color: #F1F1F1; }
+
+hr { margin: 6px 0; }
+sup { margin-left: 1px; }
+label { font-weight: normal; }
+label span { color: #999; }
+form { margin: 0; }
+input, button, select, textarea { font-size: 12px; font-family: Arial, Helvetica, sans-serif; }
+div.tab-content { padding-top: 5px; }
+a.icon { text-decoration: none; }
+
+h2 { margin: 0 0 12px 0; padding: 6px 0; background: #0075C1; color: white; text-align: center; text-transform: uppercase; font-weight: normal; font-size: 14px; line-height: 14px; }
+h3.section { margin: 0 0 12px 0; padding: 6px 0; background: #A9AAAA; color: white; text-align: center; text-transform: uppercase; font-weight: normal; font-size: 14px; line-height: 14px; }
+
+body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom { margin-right: 0; }
+
+input[type="radio"], input[type="checkbox"] { margin-top: 2px; }
+
+a:focus { outline: none; }
+
+.alert { padding: 6px; }
+.oculto { display: none; }
+.pagination { margin: 8px 0; }
+.form-control { font-size: 12px; }
+.smallfont { font-size: 11px; }
+.form-compressed .form-group { margin-bottom: 8px; }
+.form-compressed input.form-control { height: 30px; }
+
+a[href^="http"] {
+    background: transparent url(../img/external-link.gif) no-repeat center left;
+    padding-left: 14px;
+}
+
+a[href^="mailto"] {
+    background: transparent url(../img/external-link.gif) no-repeat center left;
+    padding-left: 16px;
+}
+
+/*
+ * Ficha
+ */
+.ficha p { padding: 2px 4px; }
+.ficha p:first-letter, #ficha ul li:first-letter { text-transform: uppercase; }
+.ficha p.titulo { border-bottom: 1px solid #DDD; color: #333; font-weight: bold; }
+
+.ficha li span { display: inline-block; min-width: 140px; border-right: 1px solid #F0F0F0; margin-right: 5px; }
+
+.ficha-min p { padding: 2px 4px; margin-bottom: 4px; }
+.ficha-min p:first-letter, #ficha ul li:first-letter { text-transform: uppercase; }
+.ficha-min p.titulo { background-color: #FAFAFA; color: #333; border-radius: 2px; }
+
+.ficha-min p span { display: block; clear: both; font-weight: bold; }
+
+.ficha-min ul { padding-left: 15px; list-style-type: none; }
+.ficha-min li { line-height: 22px; }
+.ficha-min li span { display: inline-block; min-width: 130px; border-right: 1px solid #F0F0F0; margin-right: 5px; }
+
+.nowrap { white-space:nowrap; }
+
+/*
+ * Inmuebles
+ */
+footer div.well { padding: 10px; }
+
+.container { background-color: #FDFDFD; border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
+.table img { width: 50px; border-radius: 3px; }
+
+#mapResult { width: 100%; overflow: auto; }
+#mapResult img { float: right; }
+#salvando-info { display: none; }
+
+body.main-inmuebles #fotos .panel { width: 260px; }
+body.main-inmuebles #fotos .panel-heading { height: 56px; }
+body.main-inmuebles #map_wrapper { height: 800px; }
+body.main-inmuebles #map_canvas { width:100%; height:100%; margin-bottom: 20px; }
+
+body.main-inmuebles .image-gallery-panel { padding-bottom: 15px; }
+body.main-inmuebles .info_content { text-align: center; }
+body.main-inmuebles .image-gallery.tam-m .panel img { max-width: 220px; }
+
+body.main-inmuebles #bmap_wrapper { height: 600px; }
+body.main-inmuebles #bmap_canvas { width:100%; height:100%; margin-bottom: 20px; }
+
+/*
+ * Galería de imágenes
+ */
+.image-gallery-panel { display: block; overflow-y: auto; padding-bottom: 75px; }
+.image-gallery { list-style-type: none; overflow: visible;}
+.image-gallery .panel { margin: 8px; float: left; }
+
+ul.image-gallery li.panel div.panel-heading { cursor: move; }
+
+.image-gallery.tam-p .panel .panel-body { min-height: 130px; text-align: center; }
+.image-gallery.tam-p .panel img { max-height: 100px; }
+
+.image-gallery.tam-m .panel .panel-body { min-height: 220px; text-align: center; }
+.image-gallery.tam-m .panel img { max-height: 190px; }
+
+.image-gallery ul.image-type { font-size: 12px; }
+.image-gallery ul.image-type li a { padding: 1px 20px; }
+.image-gallery ul.image-type li.divider { margin: 3px 0; }
+
+aside#aside-left #main-image { text-align: center; }
+aside#aside-left #main-image img { max-height: 200px; max-width: 100% }
+
+/*
+ * Galería de documentos
+ */
+.doc-gallery-panel { display: block; overflow-y: auto; padding-bottom: 75px; }
+.doc-gallery { list-style-type: none; overflow: visible;}
+.doc-gallery .panel { margin: 4px; float: left; }
+
+/*
+ * Tablas
+ */
+table.table tbody tr:hover { background-color: #FAFAFA; }
+table.vertical-align-middle td { vertical-align: middle !important; }
+table tr.baja td { opacity: 0.50; }
+
+/*
+ * Campos obligatorios
+ */
+div.input-group .select2-container-multi .select2-choices { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+div.input-group .form-control-2 ul.select2-choices { height: 34px !important; padding-top: 2px; }
+
+.busqueda input[type=checkbox] { margin-top: 2px; }
+.compressed .radio, .compressed .checkbox { margin-top:0; margin-bottom: 0 }
+
+.obligat { color: rgb(29, 172, 41); }
+.obligat-web { color: rgb(173, 136, 97); }
+.form-control-2 { border-color: #BBB; border-radius: 4px; color: #555; width: 100%; }
+.form-control-2 ul.select2-choices { border: 1px solid #BBB; padding: 0; }
+
+/*
+ * Mapas
+ */
+#map-search-canvas { height: 100%; margin: 0px; padding: 0px }
+#map-search-input { background-color: #fff; padding: 0 11px 0 13px; width: 400px; font-family: Roboto; font-size: 15px; font-weight: 300; text-overflow: ellipsis; }
+#map-search-input:focus { border-color: #4d90fe; margin-left: -1px; padding-left: 14px; width: 401px; }
+
+#buscarMapa_form div.input-group { width: 100%; }
+
+.pac-container { z-index: 1140; }
+.map-dialog-wrapper { height: 320px; }
+.map-controls { margin-top: 16px; border: 1px solid transparent; border-radius: 2px 0 0 2px; box-sizing: border-box; -moz-box-sizing: border-box; height: 32px; outline: none; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); }
+
+/*
+ * Otros
+ */
+div.fc-toolbar h2 { color: #333; background: transparent; text-transform: none; }
+
+div#logos-portales { background: white; border: 1px solid white; }
+div#logos-portales > div { margin: 5px 0; }
+div#logos-portales img { height: 32px; width: auto; }
+
+#listado a { color: #222; }
+#listado a[href^="http"], #listado a[href^="mailto"] { color: #428bca; }
+#listado a[href*="edit"] { color: #c79d59; }
+div.addr-inmueble { color: #aa0000 }
+
+.tooltipevent { background:#F5F5F5; position:absolute; z-index:10001; padding: 8px; border-radius: 3px; }
+
+#buscarAjax_results { clear: both; max-height: 350px; overflow-y: scroll; }

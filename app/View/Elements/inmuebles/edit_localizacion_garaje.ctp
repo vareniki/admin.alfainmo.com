@@ -1,0 +1,1 @@
+<?php echo $this->App->horizontalInput('Garaje.numero_plaza', 'Número de plaza:', array('min' => 0, 'max' => 9999, 'maxlength' => 4));

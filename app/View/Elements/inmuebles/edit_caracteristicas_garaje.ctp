@@ -1,0 +1,1 @@
+<?php echo $this->App->horizontalInput('Garaje.area_total', 'Área total (m&sup2;):', array('min' => 0, 'maxlength' => 5, 'labelClass' => 'obligat')); ?>
