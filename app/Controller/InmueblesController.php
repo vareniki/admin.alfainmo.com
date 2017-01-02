@@ -140,6 +140,7 @@ class InmueblesController extends AppController {
       'TipoInmueble.id',
       'TipoInmueble.description',
       'TipoMoneda.symbol',
+		  'Agente.id',
       'Agente.nombre_contacto'),
     'order' => array('Inmueble.numero_agencia' => 'asc', 'Inmueble.codigo' => 'desc')
   );

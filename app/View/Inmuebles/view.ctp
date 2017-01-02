@@ -46,7 +46,7 @@ $this->end();
 $subinfo = $this->Inmuebles->getSubtipoInfo($info);
 $url_64 = $this->data['referer'];
 
-$ver_todo = $profile['is_central'] || $agencia['Agencia']['id'] == $info['Agencia']['id'];
+$ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agencia']['id'] && ($profile['is_coordinador'] || $profile['is_agencia'] || ($profile['is_agente'] && $agente['Agente']['id'] == $info['Inmueble']['agente_id'])));
 ?>
 <div class="tabbable">
 <ul class="nav nav-tabs">
@@ -212,11 +212,20 @@ $ver_todo = $profile['is_central'] || $agencia['Agencia']['id'] == $info['Agenci
 		<p class="titulo">Contacto</p>
 		<ul>
 			<?php
-			$this->Model->printIfExists($info, 'nombre_contacto', array('label' => 'Nombre', 'model' => 'Cliente'));
-			$this->Model->printIfExists($info, 'email_contacto', array('label' => 'EMail', 'format' => 'email', 'model' => 'Cliente'));
-			$this->Model->printIfExists($info, array('telefono1_contacto', 'telefono2_contacto'), array('label' => 'Teléfonos', 'format' => 'tel', 'model' => 'Cliente'));
-			$this->Model->printIfExists($info, '["Cliente"]["HorarioContacto"]["description"]', array('label' => 'Horario de contacto', 'model' => 'expression'));
+			$this->Model->printIfExists($info, 'nombre_contacto', array('label' => 'Nombre', 'model' => 'Contacto'));
+			$this->Model->printIfExists($info, 'email_contacto', array('label' => 'EMail', 'format' => 'email', 'model' => 'Contacto'));
+			$this->Model->printIfExists($info, array('telefono1_contacto', 'telefono2_contacto'), array('label' => 'Teléfonos', 'format' => 'tel', 'model' => 'Contacto'));
+			$this->Model->printIfExists($info, '["Contacto"]["HorarioContacto"]["description"]', array('label' => 'Horario de contacto', 'model' => 'expression'));
 			$this->Model->printIfExists($info, 'llaves', array('label' => 'Llaves'));
+			?>
+		</ul>
+
+		<p class="titulo">Propietario</p>
+		<ul>
+			<?php
+			$this->Model->printIfExists($info, 'nombre_contacto', array('label' => 'Nombre', 'model' => 'Propietario'));
+			$this->Model->printIfExists($info, 'email_contacto', array('label' => 'EMail', 'format' => 'email', 'model' => 'Propietario'));
+			$this->Model->printIfExists($info, array('telefono1_contacto', 'telefono2_contacto'), array('label' => 'Teléfonos', 'format' => 'tel', 'model' => 'Propietario'));
 			?>
 		</ul>
 	<?php endif; ?>

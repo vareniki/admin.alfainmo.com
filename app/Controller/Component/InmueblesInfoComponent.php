@@ -312,6 +312,9 @@ class InmueblesInfoComponent extends SessionComponent {
 		// Cambio en la dirección (35)
 		if ( ( $info['Inmueble']['nombre_calle'] <> $lastInfo['Inmueble']['nombre_calle'] )
 		     || ( $info['Inmueble']['numero_calle'] <> $lastInfo['Inmueble']['numero_calle'] )
+         || ( $info['Inmueble']['codigo_postal'] <> $lastInfo['Inmueble']['codigo_postal'] )
+         || ( $info['Inmueble']['poblacion'] <> $lastInfo['Inmueble']['poblacion'] )
+         || ( $info['Inmueble']['provincia'] <> $lastInfo['Inmueble']['provincia'] )
 		) {
 
 			$calle1 = $info['Inmueble']['nombre_calle'];
@@ -323,6 +326,15 @@ class InmueblesInfoComponent extends SessionComponent {
 			if ( ! empty( $lastInfo['Inmueble']['numero_calle'] ) ) {
 				$calle2 .= ', ' . $lastInfo['Inmueble']['numero_calle'];
 			}
+
+			if (( $info['Inmueble']['codigo_postal'] <> $lastInfo['Inmueble']['codigo_postal'] )
+          || ( $info['Inmueble']['poblacion'] <> $lastInfo['Inmueble']['poblacion'] )
+          || ( $info['Inmueble']['provincia'] <> $lastInfo['Inmueble']['provincia'] ))
+			{
+
+        $calle1 .= ' (' . $info['Inmueble']['codigo_postal'] . ' - ' . $info['Inmueble']['poblacion'] . ' - ' . $info['Inmueble']['provincia'] . ')';
+        $calle2 .= ' (' . $lastInfo['Inmueble']['codigo_postal'] . ' - ' . $lastInfo['Inmueble']['poblacion'] . ' - ' . $lastInfo['Inmueble']['provincia'] . ')';
+      }
 
 			$result[] = array(
 					'fecha'          => date( 'Y-m-d H:i:s' ),

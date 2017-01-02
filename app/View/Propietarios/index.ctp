@@ -65,12 +65,10 @@ if (isset($info)): ?>
       foreach ($info as $item) {
 
         $icons = '';
-        if (!$profile['is_consultor']
-	          && ($profile['is_central']
-	          || (($profile['is_agencia'] || $profile['is_coordinador']) && $agencia['Agencia']['id'] == $item['Inmueble']['agencia_id'])
-	          || ($profile['is_agente'] && isset($item['Inmueble']['agente_id']) && $agente['Agente']['id'] == $item['Inmueble']['agente_id']))) {
+        if ($profile['is_central'] || $profile['is_agencia'] || ($profile['is_agente'] && $agente['Agente']['id'] == $item['Inmueble']['agente_id'])) {
           $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Propietario']['id'] . '/' . $url_64, array('escape' => false));
         }
+
         $link = 'view/' . $item['Propietario']['id'] . '/' . $url_64;
 	      $link_inmueble = '/inmuebles/view/' . $item['Inmueble']['id'] . '/' . $url_64;
 	      $baja = (!empty($item['Propietario']['fecha_baja'])) ? ' baja' : '';

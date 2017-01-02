@@ -32,7 +32,7 @@ class DemandantesController extends AppController {
     public $paginate = array(
         'limit' => 10,
         'recursive' => 2,
-        'fields' => array('Demandante.*', 'Demanda.tipo', 'Demanda.operacion', 'Agente.nombre_contacto'),
+        'fields' => array('Demandante.*', 'Demanda.tipo', 'Demanda.operacion', 'Agente.id', 'Agente.nombre_contacto'),
         'order' => array('Demandante.id' => 'desc'));
 
     private static $tiposInmueble = array(
@@ -172,6 +172,11 @@ class DemandantesController extends AppController {
 
         $search = $this->PersonasInfo->crearBusqueda($this->request->data, 'Demandante');
         $search['Demandante.agencia_id'] = $agencia['id'];
+
+		    if ($this->isAgente() && !$this->isCoordinador()) {
+			    $agente = $this->viewVars['agente']['Agente'];
+			    $search['Demandante.agente_id'] = $agente['id'];
+		    }
 
         if (!empty($this->passedArgs['sortBy'])) {
             $sortBy = explode(' ', $this->passedArgs['sortBy']);

@@ -17,7 +17,7 @@ class PropietariosController extends AppController {
   public $paginate = array(
     'limit' => 10,
     'recursive' => 1,
-    'fields' => array('Propietario.*', 'Inmueble.id', 'Inmueble.agencia_id', 'Inmueble.numero_agencia', 'Inmueble.codigo'),
+    'fields' => array('Propietario.*', 'Inmueble.id', 'Inmueble.agencia_id', 'Inmueble.numero_agencia', 'Inmueble.codigo', 'Inmueble.agente_id'),
     'order' => array('Propietario.id' => 'desc'));
 
   private function getPaises() {
@@ -66,6 +66,11 @@ class PropietariosController extends AppController {
 
     $search = $this->PersonasInfo->crearBusqueda($this->request->data, 'Propietario');
     $search['Inmueble.agencia_id'] = $agencia['id'];
+
+	  if ($this->isAgente() && !$this->isCoordinador()) {
+		  $agente = $this->viewVars['agente']['Agente'];
+		  $search['Inmueble.agente_id'] = $agente['id'];
+	  }
 
     if (!empty($this->passedArgs['sortBy'])) {
       $sortBy = explode(' ', $this->passedArgs['sortBy']);

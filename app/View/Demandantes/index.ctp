@@ -81,9 +81,9 @@ echo $this->Form->hidden('sortBy', array('name' => 'sortBy'));
     foreach ($info as $item) {
 
       $icons = '';
-      if (!$profile['is_consultor'] && ($profile['is_central'] || $profile['is_agencia'] || $profile['is_coordinador'] || ($profile['is_agente'] && $agente['Agente']['id'] == $item['Demandante']['agente_id']))) {
-        $icons .= $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Demandante']['id'] . '/' . $url_64, array('escape' => false));
-      }
+	    if ($profile['is_central'] || $profile['is_agencia'] || ($profile['is_agente'] && $agente['Agente']['id'] == $item['Inmueble']['agente_id'])) {
+		    $icons .= $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Demandante']['id'] . '/' . $url_64, array('escape' => false));
+	    }
       $link = 'view/' . $item['Demandante']['id'] . '/' . $url_64;
 	    $baja = (!empty($item['Demandante']['fecha_baja'])) ? ' baja' : '';
 
