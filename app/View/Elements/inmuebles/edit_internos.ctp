@@ -17,7 +17,7 @@ if ($profile['is_agencia'] || $profile['is_coordinador']) {
 }
 ?>
 <h3 class="section">Datos registrales</h3>
-<p class="text-info text-center">Los datos registrales son obligatorios para que los inmuebles se publiquen en Web</p>
+<p class="text-info text-center">Los datos registrales son obligatorios para que los inmuebles se publiquen en Web, excepto alquileres.</p>
 <div id="registrales">
   <?php
   echo $this->App->horizontalInput('Inmueble.registro_de', 'Registro de:', array('maxlength' => 32, 'labelClass' => 'obligat-web'));

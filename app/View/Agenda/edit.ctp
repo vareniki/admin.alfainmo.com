@@ -36,7 +36,9 @@ $valoraciones = array('' => ' ') + $valoraciones;
 $this->set('title_for_layout', $title);
 
 $this->start('header');
-echo $this->Html->script(array('bootbox', 'alfainmo.ajax', 'jquery-ui.min'));
+
+echo $this->Html->css(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/themes/base/jquery-ui.min.css'], null, ['inline' => false]);
+echo $this->Html->script(['//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js', '//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.min.js', 'alfainmo.ajax.js?ver=1.1.0']);
 ?>
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -190,7 +192,7 @@ $this->end();
 	<?php } ?>
 </datalist>
 <?php
-echo $this->Form->create(false, array('id' => 'editForm', 'action' => 'index', 'class' => 'form-horizontal'));
+echo $this->Form->create(false, array('id' => 'editForm', 'url' => '/agenda/index', 'class' => 'form-horizontal'));
 
 echo $this->Form->hidden('Evento.id');
 echo $this->Form->hidden('Evento.agencia_id', array('value' => $agencia['Agencia']['id']));

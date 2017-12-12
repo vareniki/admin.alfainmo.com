@@ -5,7 +5,6 @@ $this->extend('/Common/view2top');
 
 $title = "Agencias de la red Alfa Inmobiliaria";
 $this->set('title_for_layout', $title);
-$url_64 = base64_encode($this->Html->url($this->request->data));
 if ($profile['is_central']) {
   $this->start('sidebar');
   echo $this->element('agencias_top');
@@ -28,7 +27,7 @@ $this->start('header'); ?>
 </script>
 <?php $this->end();
 
-echo $this->Form->create(false, array('id' => 'searchForm', 'action' => '/index', 'class' => 'busqueda inline-form'));
+echo $this->Form->create(false, array('id' => 'searchForm', 'url' => '/agencias/index', 'class' => 'busqueda inline-form'));
 echo $this->Form->hidden('sortBy', array('name' => 'sortBy'));
 ?>
 <div class="input-group">
@@ -68,9 +67,9 @@ if (isset($info)): ?>
 
         $icons = '';
         if ($profile['is_central']) {
-          $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Agencia']['id'] . '/' . $url_64, array('escape' => false));
+          $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Agencia']['id'], array('escape' => false));
         }
-        $link = 'view/' . $item['Agencia']['id'] . '/' . $url_64;
+        $link = 'view/' . $item['Agencia']['id'];
         $baja = ($item['Agencia']['active'] != 't') ? ' baja' : '';
 
         echo $this->Html->tableCells(array(

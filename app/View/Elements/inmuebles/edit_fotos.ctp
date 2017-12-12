@@ -28,7 +28,9 @@ if (!isset($info['Inmueble']['id'])) {
 <p class="text-info">Te recomendamos que veas esta presentación de cómo mejorar la imagen de tus viviendas: <a href="http://www.alfainmo.com/descargas/Home-Staging.ppt">Home Staging</a>.</p>
 <p class="text-info">Os enviamos otra manera de realizar los planos con PowerPoint: <a href="https://youtu.be/__lFe-jAGfU" target="_blank">V&iacute;deo explicativo</a> / <a href="http://www.alfainmo.com/descargas/iconos-generador-planos.ppt">Iconos necesarios</a>.</p>
 
-<p class="text-info">Os enviamos un tutorial y un ejemplo para que podáis ver la forma en la cual realizar vídeos con Movie Maker: <a href="https://youtu.be/_QEtrLTBNqo" target="_blank">Tutorial</a> / <a href="https://youtu.be/2kbpOcZweZ8" target="_blank">Ejemplo</a>.</p>
+<p class="text-info">Os enviamos un tutorial y un ejemplo para que podáis ver la forma en la cual realizar vídeos con Movie Maker: <a href="https://youtu.be/_QEtrLTBNqo" target="_blank">Tutorial</a> / <a href="https://youtu.be/Hint2vkw8UI" target="_blank">Ejemplo</a>.</p>
+<p class="text-info">Descarga de m&uacute;sica para vuestros v&iacute;deos: <a href="http://www.alfainmo.com/descargas/instrumental-sin-voz.wma">AQU&Iacute;</a>.</p>
+<p class="text-info">Descarga de m&uacute;sica y voz para vuestros v&iacute;deos: <a href="http://www.alfainmo.com/descargas/instrumental-con-voz.wma">AQU&Iacute;</a>.</p>
 
 <p class="text-info">Una vez seleccionada la imagen o imágenes debes pulsar el botón &quot;grabar&quot; para que &eacute;stas se adjunten al inmueble.
   Para seleccionar archivos, mant&eacute;n presionada la tecla <strong>Ctrl</strong> y, a continuaci&oacute;n, haz clic en cada uno de

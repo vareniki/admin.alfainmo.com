@@ -3,7 +3,7 @@
 // app/Controller/UsersController.php
 class UsersController extends AppController {
 
-	public $uses = array('Agencia', 'Agente');
+	public $uses = array('Agencia', 'Agente', 'MonedaPais');
 
 	protected function loadInitData($user) {
 
@@ -21,11 +21,20 @@ class UsersController extends AppController {
 		if (!is_null($user['agencia_id'])) {
 
 			$agencia_id = $user['agencia_id'];
-			$agencia = $this->Agencia->find('first', array('conditions' => array('Agencia.id' => $agencia_id), 'recursive' => 2));
 
-			if ($agencia['Agencia']['active'] != 't') {
-				throw new Exception("Agencia dada de baja.");
-			}
+      $agencia = $this->Agencia->find('first', array(
+          'fields' => array('Agencia.*', 'Pais.*', 'User.*'),
+          'conditions' => array('Agencia.id' => $agencia_id, 'Agencia.active' => 't'), 'recursive' => 0));
+
+      if (!is_null($agencia['Pais']['id'])) {
+        $pais_id = $agencia['Pais']['id'];
+        $tiposMoneda = $this->MonedaPais->find('first', array(
+            'fields' => array('TipoMoneda.*'),
+            'conditions' => array('MonedaPais.pais_id' => $pais_id),
+            'order' => 'MonedaPais.orden',
+            'recursive' => 0));
+        $agencia['Pais']['TipoMoneda'] = $tiposMoneda;
+      }
 
 			if (!is_null($user['agente_id'])) {
 				$this->Agencia->hasMany['Agente']['conditions'] = array('Agente.id' => $user['agente_id']);
@@ -40,7 +49,11 @@ class UsersController extends AppController {
 			$this->Session->write('agente', $agente);
 		}
 
-		$agentes = $this->Agente->find('all', array('conditions' => array('Agencia.id' => $agencia_id, 'User.active' => 't'), 'recursive' => 2, 'order' => array('Agente.nombre_contacto')));
+		$agentes = $this->Agente->find('all', array(
+		    'fields' => array('Agente.*', 'Agencia.*', 'User.*'),
+		    'conditions' => array('Agencia.id' => $agencia_id, 'User.active' => 't'),
+        'recursive' => 0,
+        'order' => array('Agente.nombre_contacto')));
 		$this->Session->write('agentes', $agentes);
 		$this->Session->write('user', $user);
 	}
@@ -68,7 +81,7 @@ class UsersController extends AppController {
 			$this->User->create();
 			if ($this->User->save($this->request->data)) {
 				$this->Session->setFlash(__('The user has been saved'), 'default', array('class' => 'alert alert-danger'));
-				$this->redirect(array('action' => 'index'));
+				$this->redirect(array('url' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The user could not be saved. Please, try again.'), 'default', array('class' => 'alert alert-danger'));
 			}
@@ -85,10 +98,10 @@ class UsersController extends AppController {
 		}
 		if ($this->User->delete()) {
 			$this->Session->setFlash(__('User deleted'), 'default', array('class' => 'alert alert-danger'));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect(array('url' => 'index'));
 		}
 		$this->Session->setFlash(__('User was not deleted'), 'default', array('class' => 'alert alert-danger'));
-		$this->redirect(array('action' => 'index'));
+		$this->redirect(array('url' => 'index'));
 	}
 
 	public function edit($id = null) {
@@ -99,7 +112,7 @@ class UsersController extends AppController {
 		if ($this->request->is('post') || $this->request->is('put')) {
 			if ($this->User->save($this->request->data)) {
 				$this->Session->setFlash(__('The user has been saved'), 'default', array('class' => 'alert alert-danger'));
-				$this->redirect(array('action' => 'index'));
+				$this->redirect(array('url' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The user could not be saved. Please, try again.'), 'default', array('class' => 'alert alert-danger'));
 			}

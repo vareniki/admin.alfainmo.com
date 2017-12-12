@@ -45,13 +45,16 @@
     '["Nave"]["TipoAA"]["description"]' => 'aire acondicionado ',
     '["Nave"]["TipoAguaCaliente"]["description"]' => 'agua caliente'), array('model' => 'expression', 'label' => 'Características'));
   
-  $this->Model->printIfExists($info, 'subtipo_calefaccion', array('label' => 'Calefacción individual', 'model' => 'Nave'));
+  $this->Model->printIfExists($info, 'subtipo_calefaccion', array('label' => 'Tipo de calefacci&oacute;n', 'model' => 'Nave'));
   ?>
 </ul>
 <ul>
   <?php
   $this->Model->printIfExists($info, 'gastos_comunidad', array('label' => 'Gastos de comunidad', 'model' => 'Nave', 'format' => 'currency', 'places' => 2));
   $this->Model->printIfExists($info, '["Nave"]["CalificacionEnergetica"]["description"]', array('label' => 'Calificación energética', 'model' => 'expression'));
-  $this->Model->printIfExists($info, 'indice_energetico', array('label' => 'Índice energético', 'model' => 'Nave', 'format' => 'number', 'places' => 2, 'adicional' => 'kgCO2/m2 a&ntilde;o'));
+  $this->Model->printIfExists($info, 'indice_energetico', array('label' => 'Índice energético', 'model' => 'Nave', 'format' => 'number', 'places' => 2, 'adicional' => 'kWh/m<sup>2</sup> a&ntilde;o'));
+  $this->Model->printIfExists($info, 'emisiones_co2', array('label' => 'Emisiones CO<sub>2</sub>', 'model' => 'Nave', 'format' => 'number', 'places' => 2, 'adicional' => 'kg CO<sub>2</sub>/m<sup>2</sup> a&ntilde;o'));
+
+  $this->Model->printIfExists($info, 'num_registro_energetico', array('label' => 'N. Registro energ&eacute;tico', 'model' => 'Nave'));
   ?>
 </ul>

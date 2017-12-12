@@ -9,11 +9,11 @@ $this->set('title_for_layout', $title);
 $this->end();
 
 $this->start('header');
-$this->Html->css(array('//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.8.0/fullcalendar.css'), null, array('inline' => false));
-echo $this->Html->script(array('jquery-ui.min',
-	'//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js',
-	'//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/locale/es.js',
-	'//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.8.0/fullcalendar.min.js'));
+$this->Html->css(['//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.7.0/fullcalendar.css'], null, ['inline' => false]);
+echo $this->Html->script(['jquery-ui.min',
+    '//cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment.min.js',
+    '//cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/locale/es.js',
+    '//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.7.0/fullcalendar.min.js']);
 ?>
 <script type="text/javascript">
 
@@ -181,6 +181,13 @@ echo $this->Html->script(array('jquery-ui.min',
 		};
 
 		$('#calendar').fullCalendar(options);
+
+        $('#calendar .fc-toolbar .fc-right .fc-button-group button').on("click", function() {
+            if ($("#agente").val() != '') {
+                $("a[class*='evncal']").hide();
+                $("a[class*='evncal-" + $("#agente").val() + "']").show();
+            }
+        });
 
 		$('#agente').on("change", function() {
 			if (this.value == '') {

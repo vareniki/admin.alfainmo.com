@@ -412,7 +412,7 @@ class AjaxHelper extends AppHelper {
 		}
 
 		if (empty($options['url'])) {
-			$options['url'] = array('action' => $params);
+			$options['url'] = array('url' => $params);
 		}
 
 		$htmlDefaults = array(

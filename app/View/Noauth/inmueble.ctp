@@ -22,23 +22,34 @@
 [vc_column_inner width="1/2"]
 <div class="info-ficha">
 <?php
-	if ( ! empty( $info['Inmueble']['descripcion'] ) ) {
+	if ( !empty($info['Inmueble']['descripcion']) || !empty($info['Inmueble']['observaciones_pvi'])) {
 		echo '[dt_fancy_title title="Descripción" title_align="left" title_size="normal" title_color="default" title_bg="disabled" separator_color="default"]';
 		echo '[vc_column_text]';
-		$this->Model->printIfExists( $info, 'descripcion', array( 'tag' => 'p' ) );
+
+		if ($pvi == 'N') {
+          $this->Model->printIfExists( $info, 'descripcion', array( 'tag' => 'p' ) );
+        } else {
+          $this->Model->printIfExists( $info, 'observaciones_pvi', array( 'tag' => 'p' ) );
+        }
 
 		if (!empty($info['Inmueble']['video'])) {
 
-			$video = $info['Inmueble']['video'];
-			$parse = $this->Inmuebles->parseVideos($video);
+          $videos = $this->Inmuebles->parseVideos($info['Inmueble']['video']);
 
-			if (empty($parse)) {
-				echo '<p style="text-align: center; font-size: 20px"><a href="' . $video . '" target="_blank">VER V&Iacute;DEO</a></p>';
-			} else {
-				foreach ($parse as $videoact) {
-					echo '<p style="text-align:center"><iframe src="' . $videoact['url'] . '" frameborder="0" height="340px" width="100%"></iframe></p>';
-				}
-			}
+          $i=1;
+          foreach($videos[0] as $video) {
+            echo "<p style='text-align: center; font-size: 20px'><a href='$video' target='_blank'>VER V&Iacute;DEO $i</a></p><br>";
+            $i++;
+          }
+
+          if ($pvi == 'S') {
+            if ( isset( $videos[1] ) ) {
+              foreach ( $videos[1] as $video ) {
+                echo "<p style='text-align: center; font-size: 20px'><a href='$video' target='_blank'>VER V&Iacute;DEO $i</a></p><br>";
+                $i ++;
+              }
+            }
+          }
 
 		}
 
@@ -59,7 +70,6 @@
 [dt_fancy_title title="Información" title_align="left" title_size="normal" title_color="default" title_bg="disabled" separator_color="default"]
 [vc_column_text]
 <p><?php
-	//$adicional = ( ! empty( $subinfo['urbanizacion'] ) ) ? 'Urbanizaci&oacute;n ' . $subinfo['urbanizacion'] : '';
 	$adicional = '';
 	echo $this->Inmuebles->printDescripcion( $info, $adicional );
 	?>
@@ -67,7 +77,10 @@
 <ul>
 	<?php
 	if ( $info['Inmueble']['es_venta'] == 't' ) {
-		$this->Model->printIfExists( $info, 'precio_venta', array(
+
+	    $campo = ($pvi == 'S') ? 'precio_particular' : 'precio_venta';
+
+		$this->Model->printIfExists( $info, $campo, array(
 				'label'  => 'Precio de venta',
 				'format' => 'currency'
 		) );

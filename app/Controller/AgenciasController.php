@@ -89,21 +89,15 @@ class AgenciasController extends AppController
 		$this->set('info', $info);
 	}
 
-	/**
-	 * @param null $id
-	 * @param null $url_64
-	 */
-	public function view($id = null, $url_64 = null)
+  /**
+   * @param null $id
+   */
+	public function view($id = null)
 	{
-		/*
-		 * Comprueba si se le pasa un parámetro ($id). En caso de que se le pase dicho parámetro
-		 * reinicia y obtiene la última página. Si no, entonces busca los parámetros por "post"
-		 */
-		if (isset($id)) {
-			$this->request->data['referer'] = $url_64;
-		}
-
-		$info = $this->Agencia->find('first', array('conditions' => array('Agencia.id' => $id), 'recursive' => 2));
+		$info = $this->Agencia->find('first', array(
+		    'fields' => array('Agencia.*', 'Pais.*'),
+		    'conditions' => array('Agencia.id' => $id),
+        'recursive' => 0));
 		$this->set('info', $info);
 	}
 
@@ -150,11 +144,10 @@ class AgenciasController extends AppController
 		$this->view = '/Agencias/edit';
 	}
 
-	/**
-	 * @param null $id
-	 * @param null $url_64
-	 */
-	public function edit($id = null, $url_64 = null) {
+  /**
+   * @param null $id
+   */
+	public function edit($id = null) {
 		/*
 		 * Comprueba si se le pasa un parámetro ($id). En caso de que se le pase dicho parámetro partimos de cero y
 		 * obtenemos la última página. Si no, entonces busca los parámetros por "post"
@@ -163,7 +156,6 @@ class AgenciasController extends AppController
 			$info = $this->request->data;
 
 			$id = $info['Agencia']['id'];
-			$url_64 = $info['referer'];
 
 			try {
 				$this->Agencia->save($info['Agencia']);
@@ -190,14 +182,16 @@ class AgenciasController extends AppController
 			}
 		}
 
-		$info = $this->Agencia->find('first', array('conditions' => array('Agencia.id' => $id), 'recursive' => 2));
+    $info = $this->Agencia->find('first', array(
+        'fields' => array('Agencia.*', 'User.*'),
+        'conditions' => array('Agencia.id' => $id),
+        'recursive' => 1));
 
 		$this->set('paises', $this->getPaises());
 		$this->set('poblaciones_ids', array('' => '(seleccionar población)') + $this->getPoblaciones(substr($info['Agencia']['codigo_postal'], 0, 2)));
 		$this->set('portales', $this->getPortales());
 
 		$this->request->data = $info;
-		$this->request->data['referer'] = $url_64;
 
 		$this->set('info', $info);
 	}

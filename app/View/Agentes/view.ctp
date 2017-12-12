@@ -11,11 +11,11 @@ $this->end();
 $url_64 = $this->data['referer'];
 
 $this->start('header');
-echo $this->Html->script(array('alfainmo.ajax', 'bootbox'));
+echo $this->Html->script(['//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js', 'alfainmo.ajax.js?ver=1.1.0']);
 ?>
 <script type="text/javascript">
 	$(document).ready(function () {
-		$("#eventsForm").ajaxSubmit({	target: "#eventsForm_results"	});
+		$("#eventsForm").ajaxSubmit({ target: "#eventsForm_results" });
 	});
 </script>
 <?php $this->end(); ?>
@@ -47,11 +47,11 @@ echo $this->Html->script(array('alfainmo.ajax', 'bootbox'));
 </div>
 <hr>
 <div class='text-right'>
-	<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i>
-		listado</a>
 	<?php
+    echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/agentes/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+
 	if ($profile['is_agencia'] || $profile['is_coordinador']) {
-		$edit = 'edit/' . $info['Agente']['id'] . '/' . $url_64;
+		$edit = 'edit/' . $info['Agente']['id'];
 		echo $this->Html->link('<i class="glyphicon glyphicon-edit"></i> edici&oacute;n', $edit, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "\n";
 	}
 	?>

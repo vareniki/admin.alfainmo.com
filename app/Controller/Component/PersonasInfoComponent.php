@@ -46,6 +46,7 @@ class PersonasInfoComponent extends SessionComponent {
         $subcond[]["$modelo.poblacion ILIKE"] = "%$q%";
         $subcond[]["$modelo.provincia ILIKE"] = "%$q%";
         $subcond[]["$modelo.telefono1_contacto ILIKE"] = "%$q%";
+        $subcond[]["$modelo.telefono2_contacto ILIKE"] = "%$q%";
         $subcond[]["$modelo.observaciones ILIKE"] = "%$q%";
 
 	      if ($modelo == 'Demandante') {

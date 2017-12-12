@@ -1,8 +1,8 @@
 <?php
 $title = __d('alfainmo_es', 'Alfa Inmobiliaria');
 
-$this->Html->script(array($this->App->getJQueryVersion(), 'http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js'), array('inline' => false));
-$this->Html->css('http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css', null, array('inline' => false));
+$this->Html->script(['//code.jquery.com/jquery-3.2.1.min.js', '//netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'], ['inline' => false]);
+$this->Html->css('//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', null, array('inline' => false));
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -54,7 +54,7 @@ $this->Html->css('http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.m
     <div class="container">
       <?php
       echo $this->Form->create('User', array('class' => 'form-signin'));
-      echo $this->Html->image('logo-alfa-2016-387.png');
+      echo $this->Html->image('logo-20-aniversario.png');
       echo '<br><br><br>';
       echo $this->Form->input('username', array('label' => false, 'div' => false, 'class' => 'form-control', 'placeholder' => 'Usuario'));
       echo $this->Form->input('password', array('type' => 'password', 'label' => false, 'div' => false, 'class' => 'form-control', 'placeholder' => 'Password'));

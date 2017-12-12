@@ -32,7 +32,7 @@ $paragraph = new PHPRtfLite_ParFormat();
 $paragraph->setTextAlignment('center');
 
 $sect->writeText('<hr><br>Hoja informativa. No incluidos gastos de Escrituración, Registro e Impuestos.'
-                 . ' En el precio de venta están incluidos los honorarios de agencia. Los arrendadores tienen la obligación legal'
+                 . ' El comprador solo pagará honorarios si figura así expresamente en el apartado descripción. Los arrendadores tienen la obligación legal'
                  . ' de efectuar el depósito de la fianza legal ante el organismo autonómico que corresponda.'
                  . ' Para estas y otras informaciones ver aviso legal.', new PHPRtfLite_Font(7, 'Arial'), $paragraph);
 
@@ -98,7 +98,7 @@ $lines[] = $this->Model->getIfExists($info, 'area_total_construida', array('labe
 $lines[] = $this->Model->getIfExists($info, '["' . $subtipo . '"]["PlantaPiso"]["description"]', array('label' => 'Piso:', 'model' => 'expression'));
 $lines[] = $this->Model->getIfExists($info, 'numero_habitaciones', array('label' => 'Habitaciones:', 'model' => $subtipo));
 $lines[] = $this->Model->getIfExists($info, 'numero_banos', array('label' => 'Ba&ntilde;os:', 'model' => $subtipo));
-$lines[] = $this->Model->getIfExists($info, 'numero_aseos', array('label' => 'Aseos:', 'model' => $subtipo));
+$lines[] = $this->Model->getIfExists($info, 'numero_aseo_', array('label' => 'Aseos:', 'model' => $subtipofermin));
 $lines[] = $this->Model->getIfExists($info, 'numero_ascensores', array('label' => 'Ascensores:', 'model' => $subtipo));
 
 $lines[] = $this->Model->getBooleans($info, array(

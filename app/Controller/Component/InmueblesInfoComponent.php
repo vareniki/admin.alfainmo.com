@@ -2,7 +2,7 @@
 
 App::uses( 'SessionComponent', 'Controller' );
 
-define( 'IMAGEN_G', 590 );
+define( 'IMAGEN_G', 800 );
 define( 'IMAGEN_M', 296 );
 define( 'IMAGEN_P', 148 );
 
@@ -543,18 +543,46 @@ class InmueblesInfoComponent extends SessionComponent {
 			}
 		}
 
-		// Precio
-		if ( ! empty( $request['precio'] ) ) {
-			$precio = (int) $request['precio'];
-			if ( $precio > 0 ) {
-				$subcond_or          = array();
-				$subcond_or[]        = 'precio_venta > 0 AND precio_venta <' . $precio;
-				$subcond_or[]        = 'precio_alquiler > 0 AND precio_alquiler <' . $precio;
-				$subcond_or[]        = 'precio_traspaso > 0 AND precio_traspaso <' . $precio;
-				$subcond_or          = array( 'OR' => $subcond_or );
-				$conditions[]['AND'] = $subcond_or;
-			}
-		}
+		if (isset($request['precio_min'])) {
+      $precio_min = (int) $request['precio_min'];
+    } else {
+      $precio_min = 0;
+    }
+
+    if (isset($request['precio'])) {
+      $precio_max = (int) $request['precio'];
+    } else {
+      $precio_max = 0;
+    }
+
+    // Precios mínimos y máximos
+    if ($precio_min > 0 && $precio_max > 0) {
+
+        $subcond_or  = array();
+        $subcond_or[] = "Inmueble.precio_venta BETWEEN $precio_min AND $precio_max AND Inmueble.es_venta='t'";
+        $subcond_or[] = "Inmueble.precio_alquiler BETWEEN $precio_min AND $precio_max AND Inmueble.es_alquiler='t'";
+        $subcond_or[] = "Inmueble.precio_traspaso BETWEEN $precio_min AND $precio_max AND Inmueble.es_traspaso='t'";
+        $subcond_or = array( 'OR' => $subcond_or );
+        $conditions[]['AND'] = $subcond_or;
+
+    } else if ($precio_min > 0) {
+
+        $subcond_or  = array();
+        $subcond_or[] = "Inmueble.precio_venta >= $precio_min AND Inmueble.es_venta='t'";
+        $subcond_or[] = "Inmueble.precio_alquiler >= $precio_min AND Inmueble.es_alquiler='t'";
+        $subcond_or[] = "Inmueble.precio_traspaso >= $precio_min AND Inmueble.es_traspaso='t'";
+        $subcond_or = array( 'OR' => $subcond_or );
+        $conditions[]['AND'] = $subcond_or;
+
+    } else if ($precio_max > 0) {
+
+        $subcond_or = array();
+        $subcond_or[] = "Inmueble.precio_venta <= $precio_max AND Inmueble.es_venta='t'";
+        $subcond_or[] = "Inmueble.precio_alquiler <= $precio_max AND Inmueble.es_alquiler='t'";
+        $subcond_or[] = "Inmueble.precio_traspaso <= $precio_max AND Inmueble.es_traspaso='t'";
+        $subcond_or = array( 'OR' => $subcond_or );
+        $conditions[]['AND'] = $subcond_or;
+    }
 
 		// Años
 		if ( ! empty( $request['anios'] ) ) {
@@ -723,6 +751,15 @@ class InmueblesInfoComponent extends SessionComponent {
 			$conditions[]['AND'] = $subcond_or;
 		}
 
+		// Bajo
+    if ( isset( $request['bajo'] ) && $request['bajo'] == 't' ) {
+      $subcond_or          = array();
+      $subcond_or[]        = "(Inmueble.tipo_inmueble_id = '01' AND Piso.piso IN ('X0', 'X1', '00'))";
+      $subcond_or[]        = "(Inmueble.tipo_inmueble_id = '04' AND Oficina.piso IN ('X0', 'X1', '00'))";
+      $subcond_or          = array( 'OR' => $subcond_or );
+      $conditions[]['AND'] = $subcond_or;
+    }
+
 		// No último
 		if ( isset( $request['no_ultimo'] ) && $request['no_ultimo'] == 't' ) {
 			$subcond_or          = array();
@@ -731,6 +768,15 @@ class InmueblesInfoComponent extends SessionComponent {
 			$subcond_or          = array( 'OR' => $subcond_or );
 			$conditions[]['AND'] = $subcond_or;
 		}
+
+		// Con terraza
+    if ( isset( $request['terraza'] ) && $request['terraza'] == 't' ) {
+      $subcond_or   = array();
+      $subcond_or[] = "(Inmueble.tipo_inmueble_id = '01' AND Piso.area_terraza > 0)";
+      $subcond_or[] = "(Inmueble.tipo_inmueble_id = '02' AND Chalet.area_terraza > 0)";
+      $subcond_or   = array( 'OR' => $subcond_or );
+      $conditions[]['AND'] = $subcond_or;
+    }
 
 		// Estado del inmueble
 		if ( ! empty( $request['estado_inmueble'] ) ) {
@@ -744,7 +790,21 @@ class InmueblesInfoComponent extends SessionComponent {
 
 		// Tipo de encargo
 		if ( ! empty( $request['tipo_contrato'] ) ) {
-			$conditions['Inmueble.tipo_contrato_id'] = $request['tipo_contrato'];
+
+      $tipo_contrato = $request['tipo_contrato'];
+		  if ($tipo_contrato == 'AI') {
+
+        $subcond_or   = array();
+        $subcond_or[] = "(Inmueble.tipo_contrato_id = 'AI')";
+        $subcond_or[] = "(Inmueble.tipo_contrato_id = 'PV')";
+
+        $subcond_or   = array( 'OR' => $subcond_or );
+        $conditions[]['AND'] = $subcond_or;
+
+      } else {
+        $conditions['Inmueble.tipo_contrato_id'] = $tipo_contrato;
+      }
+
 		}
 
 		// Motivo de baja
@@ -808,18 +868,31 @@ class InmueblesInfoComponent extends SessionComponent {
 			$conditions['Inmueble.pais_id'] = $request['pais_id'];
 		}
 
+
 		if ( ! empty( $request['data_polygons'] ) ) {
-			$params       = explode( ',', $request['data_polygons'] );
-			$param_result = '';
-			if ( ( count( $params ) >> 1 ) == ( count( $params ) / 2 ) ) {
-				for ( $i = 0; $i < count( $params ); $i += 2 ) {
-					$param_result .= ',(' . $params[ $i ] . ',' . $params[ $i + 1 ] . ')';
-				}
-			}
-			if ( $param_result != '' ) {
-				$param_result        = '(' . substr( $param_result, 1 ) . ')';
-				$conditions[]['AND'] = array( "(Inmueble.coord_x IS NOT NULL AND Inmueble.coord_y IS NOT NULL AND point(Inmueble.coord_x,Inmueble.coord_y) <@ polygon('$param_result'))" );
-			}
+      $polygons_search = [];
+
+      $lines = explode( "\n", $request['data_polygons'] );
+      foreach ($lines as $line) {
+
+        $params = explode( ',', $line );
+        $param_result = '';
+        if ( ( count( $params ) >> 1 ) == ( count( $params ) / 2 ) ) {
+          for ( $i = 0; $i < count( $params ); $i += 2 ) {
+            $param_result .= ',(' . $params[ $i ] . ',' . $params[ $i + 1 ] . ')';
+          }
+        }
+
+        if ( $param_result != '' ) {
+          $param_result  = '(' . substr( $param_result, 1 ) . ')';
+          $polygons_search[] = "(Inmueble.coord_x IS NOT NULL AND Inmueble.coord_y IS NOT NULL AND point(Inmueble.coord_x,Inmueble.coord_y) <@ polygon('$param_result'))";
+        }
+      }
+
+		  if (!empty($polygons_search)) {
+        $conditions[]['AND'] = array('OR' => $polygons_search);
+      }
+
 		}
 
 		$subconds_or = array();
@@ -850,6 +923,7 @@ class InmueblesInfoComponent extends SessionComponent {
 
 					$subcond[]["TRANSLATE(Inmueble.poblacion,'áéíóúÁÉÍÓÚ','aeiouAEIOU') ILIKE"]          = "%$tag%";
 					$subcond[]["Inmueble.codigo_postal ILIKE"]                                           = "%$tag%";
+          $subcond[]["TRANSLATE(Inmueble.zona, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU') ILIKE"]             = "%$tag%";
 					$subcond[]["TRANSLATE(Inmueble.nombre_calle, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU') ILIKE"]     = "%$tag%";
 					$subcond[]["TRANSLATE(Contacto.nombre_contacto, 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU') ILIKE"]  = "%$tag%";
 					$subcond[]["Contacto.telefono1_contacto ILIKE"]                                      = "%$tag%";
@@ -1022,7 +1096,7 @@ class InmueblesInfoComponent extends SessionComponent {
 			}
 		}
 		if ( ! isset( $info['_has_imagenes'] ) ) {
-			$campos .= ', plano y fotos';
+			$campos .= ', fotos';
 			$result = false;
 		}
 
@@ -1053,7 +1127,6 @@ class InmueblesInfoComponent extends SessionComponent {
 			// El inmueble no tiene referencia catastral
 			//
 			$conditions['Inmueble.codigo_postal'] = $info['Inmueble']['codigo_postal'];
-			//$conditions['Inmueble.nombre_calle'] = $info['Inmueble']['nombre_calle'];
 			$nombre_calle = str_replace("'", "''", $info['Inmueble']['nombre_calle']);
 			$conditions[] = "Inmueble.nombre_calle ILIKE '$nombre_calle'";
 			$conditions['Inmueble.numero_calle'] = $info['Inmueble']['numero_calle'];
@@ -1139,7 +1212,8 @@ class InmueblesInfoComponent extends SessionComponent {
 			//
 			// El inmueble sí tiene referencia catastral
 			//
-			$conditions['Inmueble.ref_catastral'] = $info['Inmueble']['ref_catastral'];
+      $ref_catastral = $info['Inmueble']['ref_catastral'];
+      $conditions[] = "Inmueble.ref_catastral ILIKE '$ref_catastral'";
 			$conditions['Inmueble.sin_ref_catastral <>'] = 't';
 		}
 

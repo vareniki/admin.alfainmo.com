@@ -40,7 +40,10 @@ class AjaxController extends AppController {
 	 */
 	private function getEventos($conditions, $cambios=false) {
 
-		$conditions['Evento.agencia_id'] = $this->viewVars['agencia']['Agencia']['id'];
+	  if ( !$this->isCentral() ) {
+      $conditions['Evento.agencia_id'] = $this->viewVars['agencia']['Agencia']['id'];
+    }
+
 		if (!$cambios) {
 			$conditions[] = 'TipoEvento.type IN (1,2)';
 		} else {
@@ -154,7 +157,7 @@ class AjaxController extends AppController {
 		$params = $this->request->query;
 		$q = strtolower($params['q']);
 		$altas = !(isset($params['bajas']));
-		$agencia_id = $this->viewVars['agencia']['Agencia']['id'];
+		//$agencia_id = $this->viewVars['agencia']['Agencia']['id'];
 
 		if (strpos($q, '/') !== false) {
 
@@ -169,7 +172,7 @@ class AjaxController extends AppController {
 					'Inmueble.nombre_calle ILIKE ' => "%$q%"));
 		}
 
-		$conditions['Inmueble.agencia_id'] = $agencia_id;
+		//$conditions['Inmueble.agencia_id'] = $agencia_id;
 		if ($altas) {
 			$conditions[] = 'Inmueble.fecha_baja IS NULL';
 		}
@@ -374,16 +377,19 @@ class AjaxController extends AppController {
 		if (!$this->request->is('ajax')) {
 			return;
 		}
+    $agencia_id = $this->viewVars['agencia']['Agencia']['id'];
 
 		$conditions = array(
 			'Evento.fecha >= ' => date('Y-m-d', $this->request->query['start']),
-			'Evento.fecha <= ' => date('Y-m-d', $this->request->query['end'])
+			'Evento.fecha <= ' => date('Y-m-d', $this->request->query['end']),
+      'Evento.agencia_id' => $agencia_id
 		);
 /*
 		if ($this->isAgente()) {
 			$conditions['Evento.agente_id'] = $this->viewVars['agente']['Agente']['id'];
 		}
 */
+
 		$eventos = $this->getEventos($conditions);
 
 		echo json_encode($eventos);
@@ -544,7 +550,7 @@ class AjaxController extends AppController {
 		}
 
 		$conditions = array();
-		//$conditions['Demandante.agencia_id'] = $this->viewVars['agencia']['Agencia']['id'];
+
 		$conditions[] = 'Demandante.fecha_baja IS NULL';
 		$conditions['Demanda.tipo'] = $inmueble['Inmueble']['tipo_inmueble_id'];
 
@@ -552,16 +558,19 @@ class AjaxController extends AppController {
 
 			$conditions['Demanda.operacion'] = 'ven';
 			$conditions[] = '(Demanda.precio >= ' . $inmueble['Inmueble']['precio_venta'] . ' OR Demanda.precio IS NULL)';
+      $conditions[] = '(Demanda.precio_min <= ' . $inmueble['Inmueble']['precio_venta'] . ' OR Demanda.precio_min IS NULL)';
 
 		} else if ($inmueble['Inmueble']['es_alquiler'] == 't') {
 
 			$conditions['Demanda.operacion'] = 'alq';
 			$conditions[] = '(Demanda.precio >= ' . $inmueble['Inmueble']['precio_alquiler'] . ' OR Demanda.precio IS NULL)';
+      $conditions[] = '(Demanda.precio_min <= ' . $inmueble['Inmueble']['precio_alquiler'] . ' OR Demanda.precio_min IS NULL)';
 
 		} else if ($inmueble['Inmueble']['es_traspaso'] == 't') {
 
 			$conditions['Demanda.operacion'] = 'tra';
 			$conditions[] = '(Demanda.precio >= ' . $inmueble['Inmueble']['precio_traspaso'] . ' OR Demanda.precio IS NULL)';
+      $conditions[] = '(Demanda.precio_min <= ' . $inmueble['Inmueble']['precio_traspaso'] . ' OR Demanda.precio_min IS NULL)';
 		}
 
 		if ($busq['subtipo'] == null) {
@@ -607,13 +616,18 @@ class AjaxController extends AppController {
 
 		// Agencias activas y no central
 		$conditions['Agencia.active'] = 't';
-		$conditions[] = "Agencia.solo_central <> 't'";
 
+    $subconds = [];
+    $subconds['Demandante.agencia_id'] = $this->viewVars['agencia']['Agencia']['id'];
+    $subconds[] = "Agencia.solo_central <> 't'";
+
+    $subconds_or[] = array('OR' => $subconds);
+    $conditions[] = $subconds_or;
 		// Lugar
 		$coord_x = $inmueble['Inmueble']['coord_x'];
 		$coord_y = $inmueble['Inmueble']['coord_y'];
 
-		$conditions[] = "Demanda.data_polygons <> '' AND polygon(Demanda.data_polygons) @> point($coord_x,$coord_y)";
+		$conditions[] = "Demanda.data_polygons <> '' AND strpos(Demanda.data_polygons, E'\n') = 0 AND polygon(Demanda.data_polygons) @> point($coord_x,$coord_y)";
 
 		$info = $this->Demandante->find('all', array(
 			'order' => 'Demandante.agencia_id, Demandante.nombre_contacto',	'conditions' => $conditions));

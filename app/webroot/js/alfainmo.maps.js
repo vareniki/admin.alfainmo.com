@@ -1,9 +1,39 @@
-var geocoder = null;
+var searchManager = null;
 var localizaciones = null;
+var map = null;
+
+function geocodeQuery(query, callBackFunc) {
+    var searchRequest = {
+        where: query,
+        callback: function (r) {
+            callBackFunc(r);
+        },
+        errorCallback: function (e) {
+            alert("No results found.");
+        }
+    };
+
+    searchManager.geocode(searchRequest);
+}
+
+/**
+ *
+ * @param direccion
+ * @param callback
+ */
+var getMapAddresses = function (direccion, callback) {
+
+    Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
+        searchManager = new Microsoft.Maps.Search.SearchManager(map);
+        geocodeQuery(direccion, callback);
+    });
+}
+
 
 /**
  *
  * @param path
+ * @returns {string}
  */
 function maps_getPolygonsField(path) {
 
@@ -12,8 +42,8 @@ function maps_getPolygonsField(path) {
     path.forEach(function(poli) {
         var polygon = new Array();
         poli.forEach(function(path) {
-            var line = path.lat() + "," + path.lng();
 
+            var line = path.lat() + "," + path.lng();
             polygon.push(line);
         });
         polygons.push(polygon);
@@ -24,133 +54,20 @@ function maps_getPolygonsField(path) {
 
 /**
  *
- * @param loc
- * @returns {Object}
- */
-function convertMap2Info(loc) {
-    var item = new Object();
-
-    item.calle = "";
-    item.numero = "";
-    item.cp = "";
-    item.poblacion = "";
-    item.provincia = "";
-    item.direccion = "";
-    item.provincia_id = "";
-
-    for (var j = 0; j < loc.address_components.length; j++) {
-        var obj = loc.address_components[j];
-        var type = obj['types'][0];
-        switch (type) {
-            case 'street_number':
-                item.numero = loc.address_components[j]['long_name'];
-                break;
-            case 'route':
-                item.calle = loc.address_components[j]['long_name'];
-                break;
-            case 'postal_code':
-                item.cp = loc.address_components[j]['long_name'];
-                item.provincia_id = item.cp.substr(0, 2);
-                break;
-            case 'locality':
-                item.poblacion = loc.address_components[j]['long_name'];
-                break;
-            case 'administrative_area_level_1':
-                if (item.provincia == '') {
-                    item.provincia = loc.address_components[j]['long_name'];
-                }
-                break;
-            case 'administrative_area_level_2':
-                item.provincia = loc.address_components[j]['long_name'];
-
-                break;
-        }
-    }
-    item.lat = loc.geometry.location.lat();
-    item.lng = loc.geometry.location.lng();
-    item.direccion = loc.formatted_address;
-
-    return item;
-}
-
-/**
- *
  * @param {type} opts
  * @returns {String}
  */
-var getMap = function (opts, center) {
-    // Mapa
-    var src = "http://maps.googleapis.com/maps/api/staticmap?", params = $.extend({
-        center: 'Lisboa, Spain',
-        markers: 'Madrid, Spain',
-        zoom: 16,
-        size: '640x240',
-        maptype: 'roadmap',
-        sensor: true
-    }, opts), query = [];
 
-    $.each(params, function (k, v) {
-        query.push(k + '=' + encodeURIComponent(v));
-    });
-    src += query.join('&');
+var getMap = function (opts) {
 
-    var img = '<p style="width:100%;float:right"><img src="' + src + '" alt="" class="img-responsive"></p>';
+    $("#mapResult").css({'height': '200px'});
 
-    // Ver mapa m�s grande
-    src = "http://maps.google.com/maps?hl=es&iwloc=A&ll=" + opts.markers + "&center=" + opts.center;
-
-    var link = '<br><p style="float:right"><a href="' + src + '" target="_blank">Ver mapa m&aacute;s grande</a></p>';
-
-    return img + link;
+    map = new Microsoft.Maps.Map('#mapResult', {
+        center: new Microsoft.Maps.Location(opts.latitude, opts.longitude),
+        disableZooming: true,
+        mapTypeId: Microsoft.Maps.MapTypeId.road, zoom: 15 }
+    );
 }
-
-/**
- *
- * @param direccion
- * @param callback
- */
-var getMapAddresses = function (direccion, callback) {
-    if (geocoder == null) {
-        geocoder = new google.maps.Geocoder();
-    }
-
-    geocoder.geocode({'address': direccion}, function (results, status) {
-
-        if (status != google.maps.GeocoderStatus.OK) {
-            return;
-        }
-
-        $.map(results, function (loc) {
-            callback(convertMap2Info(loc));
-        });
-    });
-}
-
-/**
- *
- * @param lat
- * @param lng
- * @param callback
- */
-var getMapAddressByPos = function (lat, lng, callback) {
-    if (geocoder == null) {
-        geocoder = new google.maps.Geocoder();
-    }
-
-    var latlng = new google.maps.LatLng(lat, lng);
-
-    geocoder.geocode({'latLng': latlng}, function (results, status) {
-
-        if (status != google.maps.GeocoderStatus.OK) {
-            return;
-        }
-
-        $.map(results, function (loc) {
-            callback(convertMap2Info(loc));
-        });
-    });
-}
-
 
 /**
  *
@@ -182,10 +99,14 @@ function maps_begin_search(direccion, pais) {
     localizaciones = Array();
 
     $("#buscarMapa_results").empty();
-    getMapAddresses(direccion, function (item) {
-        localizaciones[localizaciones.length] = item;
-        var html = '<p><a class="bootbox-close-button" href="#" rel="' + localizaciones.length + '">' + item.direccion + '</a></p>';
-        $("#buscarMapa_results").append(html);
+    getMapAddresses(direccion, function (items) {
+
+        for (var i=0; i<items.results.length; i++) {
+            localizaciones[i] = items.results[i];
+            $("#buscarMapa_results").append(
+                '<p><a class="bootbox-close-button" href="#" rel="' + i+ '">' + items.results[i].name + '</a></p>'
+            );
+        }
     });
 
 }
@@ -221,7 +142,7 @@ function maps_dialog(properties, callback) {
     });
 
     $("#buscarMapa_results").on("click", "a", function () {
-        var id = parseInt(this.rel) - 1;
+        var id = parseInt(this.rel);
         callback(localizaciones[id]);
 
         return true;
@@ -297,68 +218,4 @@ function maps_createMarkers(markers, infoWindowContent) {
         }
     });
 
-}
-
-/**
- *
- * @param poly
- * @param imageUrl
- */
-function map_addDeleteButton(poly, imageUrl) {
-    var path = poly.getPath();
-    path["btnDeleteClickHandler"] = {};
-    path["btnDeleteImageUrl"] = imageUrl;
-
-    google.maps.event.addListener(poly.getPath(),'set_at', map_pointUpdated);
-    google.maps.event.addListener(poly.getPath(),'insert_at', map_pointUpdated);
-}
-
-/**
- *
- * @param imageUrl
- * @returns {*|jQuery|HTMLElement}
- */
-function map_getDeleteButton(imageUrl) {
-    return jQuery("img[src$='" + imageUrl + "']");
-}
-
-/**
- *
- * @param index
- */
-function map_pointUpdated(index) {
-    var path = this;
-    var btnDelete = map_getDeleteButton(path.btnDeleteImageUrl);
-
-    if(btnDelete.length === 0) {
-        var undoimg = jQuery("img[src*='maps.gstatic.com/mapfiles/undo_poly.png']");
-
-        undoimg.parent().css('height', '21px !important');
-        undoimg.parent().parent().append('<div style="overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px;top:21px;"><img src="' + path.btnDeleteImageUrl + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/></div>');
-
-        // now get that button back again!
-        btnDelete = map_getDeleteButton(path.btnDeleteImageUrl);
-        btnDelete.hover(function() {
-            jQuery(this).css('left', '-30px');
-            return false;
-        },
-        function() {
-            jQuery(this).css('left', '0px');
-            return false;
-        });
-        btnDelete.mousedown(function() { jQuery(this).css('left', '-60px'); return false;});
-    }
-
-    // if we've already attached a handler, remove it
-    if(path.btnDeleteClickHandler) {
-        btnDelete.unbind('click', path.btnDeleteClickHandler);
-    }
-    // now add a handler for removing the passed in index
-    path.btnDeleteClickHandler = function() {
-        path.removeAt(index);
-        return false;
-    };
-    btnDelete.click(path.btnDeleteClickHandler);
-
-    $('#dataPolygons_hidden').val(maps_getPolygonsField(selectedShape.getPaths()));
 }

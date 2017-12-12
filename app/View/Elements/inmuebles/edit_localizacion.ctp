@@ -3,66 +3,62 @@ $this->start('header');
 ?>
 <script type="text/javascript">
 
-  $(document).ready(function() {
-	  $("#mapResult").empty();
+  var map;
+  function mapCallBack() {
+      map = new Microsoft.Maps.Map('#mapResult', {
+          disableZooming: true,
+          mapTypeId: Microsoft.Maps.MapTypeId.road, zoom: 15 });
 
-	  <?php if (!empty($info['Inmueble']['coord_x']) && !empty($info['Inmueble']['coord_y'])): ?>
-		  var latLng = "<?php echo $info['Inmueble']['coord_x'] . ',' . $info['Inmueble']['coord_y']; ?>";
-		  $("#mapResult").append(getMap({center: latLng, markers: latLng}));
-	  <?php endif; ?>
-
-    $("#localizarInmueble").on("click", function() {
-      maps_dialog({
-        title: 'Geolocalizar propiedad',
-        pais: $("#InmueblePaisId option:selected").text()
-      }, function(item) {
-        /*
-         * Al pinchar aplicar se ejecuta esta función
-         */
-	      $("#mapResult").empty();
-
-	      if (item.lat != 0 && item.lng != 0) {
-		      var latLng = item.lat + "," + item.lng;
-		      $("#mapResult").append(getMap({center: latLng, markers: latLng}));
-	      }
-
-        $("#InmuebleCoordX").val(item.lat);
-        $("#InmuebleCoordY").val(item.lng);
-
-        $("#InmueblePoblacion").val(item.poblacion);
-        $("#InmuebleProvincia").val(item.provincia);
-        $("#InmuebleCodigoPostal").val(item.cp);
-
-        $("#InmuebleNombreCalle").val(item.calle);
-        $("#InmuebleNumeroCalle").val(item.numero);
-
-	      actualizarPoblaciones(); // Actualizar poblaciones
+      Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', function () {
+          var options = {
+              maxResults: 4,
+              map: map
+          };
+          var manager = new Microsoft.Maps.AutosuggestManager(options);
+          manager.attachAutosuggest('#localizarInmueble', '#localizarInmuebleContainer', localizarInmuebleResult);
       });
-    });
 
-	  $("#InmuebleCodigoPostal").on("change", function() {
-		  actualizarPoblaciones();
-	  });
+    <?php if (!empty($info['Inmueble']['coord_x']) && !empty($info['Inmueble']['coord_y'])): ?>
+      var center = new Microsoft.Maps.Location(<?php echo $info['Inmueble']['coord_x'] ?>, <?php echo $info['Inmueble']['coord_y'] ?>);
+      map.setView({center: center })
 
-	  function actualizarPoblaciones() {
+      var pins = [];
+      pins.push(new Microsoft.Maps.Pushpin(center, { icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }));
+      map.entities.push(pins);
 
-		  $("#InmueblePoblacionId").html('<option value="">(seleccionar población)</option>');
+      $("#mapResult").css('height', '200px');
+    <?php endif; ?>
+  }
 
-		  var provId = $("#InmuebleCodigoPostal").val();
-		  if (provId.length < 5) {
-			  return;
-		  }
-		  provId = provId.substr(0, 2);
+  /**
+   *
+   * @param item
+   */
+  function localizarInmuebleResult(item) {
 
-		  $.ajax("<?php echo $this->base; ?>/ajax/getPoblacionesProvincia/" + provId, {
-			  dataType: 'json',
-			  success: function(data) {
-				  $.each(data, function(i, obj) {
-					  $("#InmueblePoblacionId").append('<option value="' + obj.id + '">' + obj.description + '</option>');
-				  });
-			  }
-		  });
-	  }
+      map.entities.clear();
+      map.setView({ bounds: item.bestView });
+      map.entities.push(new Microsoft.Maps.Pushpin(item.location));
+
+      $("#InmuebleZona").val('');
+      $("#InmueblePoblacion").val(item.address.locality);
+      $("#InmuebleProvincia").val(item.address.adminDistrict);
+      $("#InmuebleCodigoPostal").val(item.address.postalCode);
+
+      $("#InmuebleCoordX").val(item.location.latitude);
+      $("#InmuebleCoordY").val(item.location.longitude);
+
+      if (item.address.addressLine != null) {
+          var streetNumber = item.address.addressLine.split(',');
+          $("#InmuebleNombreCalle").val(streetNumber[0]);
+          if (streetNumber.length > 1) {
+              $("#InmuebleNumeroCalle").val(parseInt(streetNumber[1]));
+          }
+      }
+  }
+
+  $(document).ready(function() {
+	$("#mapResult").empty();
 
 	  $("#buscarRC_btn").on("click", function () {
 		  $("#buscarRC_modal").modal();
@@ -71,33 +67,23 @@ $this->start('header');
 	  $("#refCatastral_form").ajaxForm({
 		  target: '#refCatastral_results',
 		  success: function() {
-
 		  }
 	  });
 
 	  $('#InmuebleSinRefCatastral[readonly=readonly]').click(function(){
 		  return false;
 	  });
-
-
   });
 </script>
 <?php
 $this->end();
 echo $this->App->horizontalSelect('Inmueble.pais_id', '<span>[*]</span> Pa&iacute;s:', $paises, array('required' => 'required', 'labelClass' => 'obligat'));
 ?>
-<div class="form-group" style="margin-bottom: 0;">
-  <div class="col-xs-5 col-lg-4 col-sm-4 text-right">&nbsp;</div>
-  <div class="controls col-xs-7 col-lg-8 col-sm-8">
-    <p class="text-info">Geolocaliza el inmueble y los datos se rellenan autom&aacute;ticamente</p>
-  </div>
+<div class="form-group"><label class="control-label col-xs-5 col-lg-4 col-sm-4">Geolocalizar inmueble:</label>
+    <div id='localizarInmuebleContainer' class="controls col-xs-7 col-lg-8 col-sm-8">
+        <input class="form-control" type="text" id="localizarInmueble" aria-invalid="false" placeholder="Escriba una direcci&oacute;n para geolocalizar el inmueble" style="background-color: #fff6d0;">
+    </div>
 </div>
-<div class="form-group">
-  <label class="col-xs-5 col-lg-4 col-sm-4"></label>
-  <div class="controls col-xs-7 col-lg-8 col-sm-8">
-    <button class="btn btn-default btn-sm" type="button" id="localizarInmueble">Geolocalizar inmueble...</button>
-  </div>
-</div>   
 <?php
 $read_only = (empty($info['Inmueble']['coord_x']) || empty($info['Inmueble']['coord_y'])) ? array('readonly' => 'readonly') : array();
 
@@ -144,10 +130,9 @@ if ($info['Inmueble']['estado_inmueble_id'] >= '02') {
 echo $this->App->horizontalInput('Inmueble.coord_x', 'Latitud:', array('labelClass' => 'obligat') + $read_only);
 echo $this->App->horizontalInput('Inmueble.coord_y', 'Longitud:', array('labelClass' => 'obligat') + $read_only);
 echo '<hr>';
-echo '<p><small>S&oacute;lo a efectos de la compatibilidad con la antigua Web</small></p>';
-echo $this->App->horizontalSelect('Inmueble.poblacion_id', '<span>[*]</span> Población:', $poblaciones_ids, array('labelClass' => 'text-danger'));
-echo '<hr>';
-
+//echo '<p><small>S&oacute;lo a efectos de la compatibilidad con la antigua Web</small></p>';
+//echo $this->App->horizontalSelect('Inmueble.poblacion_id', '<span>[*]</span> Población:', $poblaciones_ids, array('labelClass' => 'text-danger'));
+//echo '<hr>';
 ?>
 <div id="mapResult"></div>
 <br>
@@ -163,33 +148,36 @@ if (isset($tipoInmueble)) {
 	$escalera = '';
 	$piso = '';
 	$puerta = '';
-	switch ($info['Inmueble']['tipo_inmueble_id']) {
-		case '01':
-			$bloque = $info['Piso']['bloque'];
-			$escalera = $info['Piso']['escalera'];
-			$piso = $info['Piso']['piso'];
-			$puerta = $info['Piso']['puerta'];
-			break;
-		case '02':
-			break;
-		case '03':
-			$bloque = $info['Local']['bloque'];
-			break;
-		case '04':
-			$bloque = $info['Oficina']['bloque'];
-			$escalera = $info['Oficina']['escalera'];
-			$piso = $info['Oficina']['piso'];
-			$puerta = $info['Oficina']['puerta'];
-			break;
-		case '05':
-			break;
-		case '06':
-			break;
-		case '07':
-			break;
-		case '08':
-			break;
-	}
+	if (isset($info['Inmueble']['tipo_inmueble_id'])) {
+
+      switch ($info['Inmueble']['tipo_inmueble_id']) {
+        case '01':
+          $bloque = $info['Piso']['bloque'];
+          $escalera = $info['Piso']['escalera'];
+          $piso = $info['Piso']['piso'];
+          $puerta = $info['Piso']['puerta'];
+          break;
+        case '02':
+          break;
+        case '03':
+          $bloque = $info['Local']['bloque'];
+          break;
+        case '04':
+          $bloque = $info['Oficina']['bloque'];
+          $escalera = $info['Oficina']['escalera'];
+          $piso = $info['Oficina']['piso'];
+          $puerta = $info['Oficina']['puerta'];
+          break;
+        case '05':
+          break;
+        case '06':
+          break;
+        case '07':
+          break;
+        case '08':
+          break;
+      }
+    }
 	?>
 	<div class="modal fade" id="buscarRC_modal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog">

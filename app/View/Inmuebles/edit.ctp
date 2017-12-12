@@ -11,7 +11,8 @@ echo $this->element('inmuebles/common_view_left');
 $this->end();
 
 $this->start('header');
-echo $this->Html->script(array($config['maps.api.js'], 'alfainmo.ajax', 'alfainmo.maps', 'alfainmo.docs', 'jquery-ui.min', 'bootbox'));
+echo $this->Html->css(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/themes/base/jquery-ui.min.css'], null, ['inline' => false]);
+echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.min.js', '//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js', 'alfainmo.ajax.js?ver=1.1.0', 'alfainmo.docs.js?ver=1.1.0']);
 ?>
 <script type="text/javascript">
 
@@ -90,8 +91,8 @@ echo $this->Html->script(array($config['maps.api.js'], 'alfainmo.ajax', 'alfainm
 
     } else {
       // Porcentaje
-	    var precioProp = precioInmueble / (1 + honor / 100) ;
-	    precioProp = numberWithPoints(Math.round(precioProp));
+	  var precioProp = precioInmueble - (precioInmueble * honor / 100);
+	  precioProp = numberWithPoints(Math.round(precioProp));
       $("#InmuebleHonorAgencia").attr("max", 999);
     }
     $("#InmueblePrecioPropietario").val(precioProp);
@@ -177,7 +178,7 @@ echo $this->Html->script(array($config['maps.api.js'], 'alfainmo.ajax', 'alfainm
 		    $("#submitBtn").text("grabar");
 		    $("#checkdup").val("");
 	    }
-			<?php } ?>
+      <?php } ?>
 
 	    if (id == 'tab10') {
 		    if (!demandasLoaded) {
@@ -200,7 +201,7 @@ $this->end();
 
 $check_dup = ($info['Inmueble']['estado_inmueble_id'] == '01' && $selectedTab == 'tab2');
 
-echo $this->Form->create(false, array('id' => 'editForm', 'action' => 'edit',
+echo $this->Form->create(false, array('id' => 'editForm', 'url' => 'edit',
   'class' => 'form-horizontal aviso', 'enctype' => 'multipart/form-data'));
 echo $this->Form->hidden('referer');
 echo $this->Form->hidden('checkdup', array('name' => '_checkdup', 'value' => ($check_dup ? '1':'') ));
@@ -212,24 +213,8 @@ echo $this->Form->hidden('Inmueble.referencia');
 
 $url_64 = null; //(isset($this->data['referer'])) ? $this->data['referer'] : null;
 
-if (isset($info['Imagen'])) {
-
-	$plano = false;
-	$fotos = false;
-	foreach ($info['Imagen'] as $imagen) {
-		if ($imagen['tipo_imagen_id'] == '07') {
-			$plano = true;
-		} else {
-			$fotos = true;
-		}
-		if ($plano && $fotos) {
-			break;
-		}
-	}
-	if ($plano && $fotos) {
-		echo '<input type="hidden" name="_has_imagenes" value="S">';
-	}
-
+if (isset($info['Imagen']) && !empty($info['Imagen'])) {
+  echo '<input type="hidden" name="_has_imagenes" value="S">';
 }
 echo $this->Form->hidden('Imagen.id');
 echo $this->Form->hidden('_estado_inmueble_id', array('name' => '_estado_inmueble_id', 'value' => $info['Inmueble']['estado_inmueble_id']));
@@ -238,7 +223,7 @@ echo $this->Form->hidden('_estado_inmueble_id', array('name' => '_estado_inmuebl
 
 	<div id="save-buttons" class="text-right">
 		<?php
-		$link_view = 'view/' . $info['Inmueble']['id'] . '/' . $url_64;
+		$link_view = 'view/' . $info['Inmueble']['id'];
 		echo $this->Html->link('<i class="glyphicon glyphicon-eye-open"></i> finalizar edici&oacute;n', $link_view, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "&nbsp;\n";
 		if ($url_64) { ?>
 			<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i> volver al listado</a>
@@ -279,7 +264,29 @@ echo $this->Form->hidden('_estado_inmueble_id', array('name' => '_estado_inmuebl
     <?php echo $this->element("inmuebles/edit_caracteristicas_$tipoInmueble"); ?>
   </div>
   <div id="tab4" class="tab-pane<?php echo($selectedTab == 'tab4') ? ' active' : '' ?>">
-    <?php echo $this->element("inmuebles/edit_detalles_$tipoInmueble"); ?>
+    <?php echo $this->element("inmuebles/edit_detalles_$tipoInmueble");
+
+
+      $placeholder = 'tipo de inmueble, zona, municipio, colegios, metro, autobús, zonas de ocio...';
+      echo $this->App->horizontalInput('Inmueble.descripcion', 'Descripci&oacute;n completa:', array('rows' => 6, 'placeholder' => $placeholder));
+      echo $this->App->horizontalInput('Inmueble.descripcion_abreviada', 'Descripci&oacute;n abreviada:<br><span>(max. 500 caracteres)</span>', array('rows' => 4, 'maxlength' => 500));
+      echo $this->App->horizontalInput('Inmueble.observaciones_pvi', 'Observaciones particular vende:<br><span>(max. 250 caracteres)</span>', array('rows' => 2, 'maxlength' => 250));
+      echo $this->App->horizontalTextarea('Inmueble.video', 'Vídeos:', array('rows' => 3, 'placeholder' => 'pegue la URL o URLs separadas por salto de línea'));
+    echo $this->App->horizontalTextarea('Inmueble.tour_virtual', 'Tours virtuales:', array('rows' => 3, 'placeholder' => 'pegue la URL o URLs separadas por salto de línea'));
+    ?>
+
+      <div class="row">
+          <label class="control-label col-xs-5 col-lg-4 col-sm-4"></label>
+          <div class="controls col-xs-7 col-lg-8 col-sm-8">
+              <a data-toggle="collapse" data-target="#ejemploVideos" aria-expanded="false" aria-controls="ejemploVideos">&iquest;Como insertar los vídeos?.</a>
+          </div>
+      </div>
+      <div class="collapse text-right" id="ejemploVideos" style="margin-top:8px">
+          <div class="well">
+            <?php echo $this->Html->image('obtener-url-youtube.png'); ?><br>
+          </div>
+      </div>
+
   </div>
   <div id="tab5" class="tab-pane<?php echo($selectedTab == 'tab5') ? ' active' : '' ?>">
     <?php echo $this->element('inmuebles/edit_contacto'); ?>

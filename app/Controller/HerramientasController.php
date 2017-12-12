@@ -15,6 +15,10 @@ class HerramientasController extends AppController {
 	public $components = array('Herramientas');
 	public $uses = array('Inmueble', 'Demandante', 'TipoPiso', 'TipoChalet', 'TipoOficina', 'TipoGaraje', 'TipoTerreno');
 
+
+  private static $estados_conservacion = ['01' => 'a reformar', '02' => 'buen estado', '03' => 'promoción obra nueva'];
+  private static $interior_exterior = ['01' => 'exterior', '02' => 'interior', '03' => 'mixto'];
+
 	/**
 	 * @param $info
 	 * @return string
@@ -127,119 +131,165 @@ class HerramientasController extends AppController {
 		return $result;
 	}
 
-	private function getInmueble_piso($info) {
-		return array(
-			'metros' => $info['Piso']['area_total_construida'],
-			'habitaciones' => $info['Piso']['numero_habitaciones'],
-			'bannos' => (int) $info['Piso']['numero_banos'] + (int) $info['Piso']['numero_aseos'],
-			'parking' => ($info['Piso']['con_parking'] == 't') ? 'S' : '',
-			'anio' => isset($info['Piso']['anio_construccion']) ? $info['Piso']['anio_construccion'] : null,
-			'conservacion' => (isset($info['EstadoConservacion'])) ? $info['EstadoConservacion']['description'] : '',
-			'interior' => (isset($info['InteriorExterior'])) ? $info['InteriorExterior']['description'] : '',
-			'ascensor' => ((int) $info['Piso']['numero_ascensores'] > 0) ? 'S' : '',
-			'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
-		);
-	}
+  private function getInmueble_piso( $info ) {
 
-	private function getInmueble_chalet($info) {
-		return array(
-			'metros' => $info['Chalet']['area_total_construida'],
-			'habitaciones' => $info['Chalet']['numero_habitaciones'],
-			'bannos' => (int) $info['Chalet']['numero_banos'] + (int) $info['Chalet']['numero_aseos'],
-			'parking' => ($info['Chalet']['plazas_parking'] > 0) ? 'S' : '',
-			'anio' => isset($info['Chalet']['anio_construccion']) ? $info['Chalet']['anio_construccion'] : null,
-			'conservacion' => (isset($info['EstadoConservacion'])) ? $info['EstadoConservacion']['description'] : '',
-			'interior' => (isset($info['InteriorExterior'])) ? $info['InteriorExterior']['description'] : '',
-			'ascensor' => ($info['Chalet']['con_ascensor'] == 't') ? 'S' : '',
-			'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
-		);
-	}
+    if (isset(self::$estados_conservacion[$info['Piso']['estado_conservacion_id']])) {
+      $estado_conservacion = self::$estados_conservacion[$info['Piso']['estado_conservacion_id']];
+    } else {
+      $estado_conservacion = '';
+    }
 
-	private function getInmueble_local($info) {
-		return array(
-			'metros' => $info['Local']['area_total_construida'],
-			'habitaciones' => '',
-			'bannos' => $info['Local']['numero_aseos'],
-			'parking' => ($info['Local']['plazas_parking'] > 0) ? 'S' : '',
-			'anio' => isset($info['Local']['anio_construccion']) ? $info['Local']['anio_construccion'] : null,
-			'conservacion' => (isset($info['EstadoConservacion'])) ? $info['EstadoConservacion']['description'] : '',
-			'interior' => '',
-			'ascensor' => '',
-			'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
-		);
-	}
+    if (isset(self::$interior_exterior[$info['Piso']['interior_exterior_id']])) {
+      $interior_exterior = self::$interior_exterior[$info['Piso']['interior_exterior_id']];
+    } else {
+      $interior_exterior = '';
+    }
 
-	private function getInmueble_oficina($info) {
-		return array(
-			'metros' => $info['Oficina']['area_total_construida'],
-			'habitaciones' => $info['Oficina']['numero_habitaciones'],
-			'bannos' => (int) $info['Oficina']['numero_banos'] + (int) $info['Oficina']['numero_aseos'],
-			'parking' => ($info['Oficina']['plazas_parking'] > 0) ? 'S' : '',
-			'anio' => isset($info['Oficina']['anio_construccion']) ? $info['Oficina']['anio_construccion'] : null,
-			'conservacion' => (isset($info['EstadoConservacion'])) ? $info['EstadoConservacion']['description'] : '',
-			'interior' => (isset($info['InteriorExterior'])) ? $info['InteriorExterior']['description'] : '',
-			'ascensor' => ($info['Oficina']['numero_ascensores'] > 0) ? 'S' : '',
-			'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+    return array(
+        'metros'       => $info['Piso']['area_total_construida'],
+        'habitaciones' => $info['Piso']['numero_habitaciones'],
+        'bannos'       => (int) $info['Piso']['numero_banos'] + (int) $info['Piso']['numero_aseos'],
+        'parking'      => ( $info['Piso']['plazas_parking'] > 0 ) ? $info['Piso']['plazas_parking'] : '',
+        'anio'         => isset( $info['Piso']['anio_construccion'] ) ? $info['Piso']['anio_construccion'] : null,
+        'conservacion' => $estado_conservacion,
+        'interior'     => $interior_exterior,
+        'ascensor'     => ( (int) $info['Piso']['numero_ascensores'] > 0 ) ? 'S' : '',
+        'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+    );
+  }
 
-		);
-	}
+  private function getInmueble_chalet( $info ) {
 
-	private function getInmueble_nave($info) {
-		return array(
-			'metros' => $info['Nave']['area_total_construida'],
-			'habitaciones' => '',
-			'bannos' => $info['Nave']['numero_aseos'],
-			'parking' => ($info['Nave']['plazas_parking'] > 0) ? 'S' : '',
-			'anio' => isset($info['Nave']['anio_construccion']) ? $info['Nave']['anio_construccion'] : null,
-			'conservacion' => (isset($info['EstadoConservacion'])) ? $info['EstadoConservacion']['description'] : '',
-			'interior' => '',
-			'ascensor' => '',
-			'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+    if (isset(self::$estados_conservacion[$info['Chalet']['estado_conservacion_id']])) {
+      $estado_conservacion = self::$estados_conservacion[$info['Chalet']['estado_conservacion_id']];
+    } else {
+      $estado_conservacion = '';
+    }
 
-		);
-	}
+    return array(
+        'metros'       => $info['Chalet']['area_total_construida'],
+        'habitaciones' => $info['Chalet']['numero_habitaciones'],
+        'bannos'       => (int) $info['Chalet']['numero_banos'] + (int) $info['Chalet']['numero_aseos'],
+        'parking'      => ( $info['Chalet']['plazas_parking'] > 0 ) ? $info['Chalet']['plazas_parking'] > 0 : '',
+        'anio'         => isset( $info['Chalet']['anio_construccion'] ) ? $info['Chalet']['anio_construccion'] : null,
+        'conservacion' => $estado_conservacion,
+        'interior'     => '',
+        'ascensor'     => ( $info['Chalet']['con_ascensor'] == 't' ) ? 'S' : '',
+        'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+    );
+  }
 
-	private function getInmueble_garaje($info) {
-		return array(
-			'metros' => $info['Garaje']['area_total'],
-			'habitaciones' => '',
-			'bannos' => '',
-			'parking' => '',
-			'anio' => '',
-			'conservacion' => '',
-			'interior' => '',
-			'ascensor' => '',
-			'certificado' => ''
-		);
-	}
+  private function getInmueble_local( $info ) {
 
-	private function getInmueble_terreno($info) {
-		return array(
-			'metros' => $info['Terreno']['area_total'],
-			'habitaciones' => '',
-			'bannos' => '',
-			'parking' => '',
-			'anio' => '',
-			'conservacion' => '',
-			'interior' => '',
-			'ascensor' => '',
-			'certificado' => ''
-		);
-	}
+    if (isset(self::$estados_conservacion[$info['Local']['estado_conservacion_id']])) {
+      $estado_conservacion = self::$estados_conservacion[$info['Local']['estado_conservacion_id']];
+    } else {
+      $estado_conservacion = '';
+    }
 
-	private function getInmueble_otro($info) {
-		return array(
-			'metros' => $info['Otro']['area_total'],
-			'habitaciones' => '',
-			'bannos' => '',
-			'parking' => '',
-			'anio' => '',
-			'conservacion' => '',
-			'interior' => '',
-			'ascensor' => '',
-			'certificado' => ''
-		);
-	}
+    return array(
+        'metros'       => $info['Local']['area_total_construida'],
+        'habitaciones' => '',
+        'bannos'       => $info['Local']['numero_aseos'],
+        'parking'      => ( $info['Local']['plazas_parking'] > 0 ) ? $info['Local']['plazas_parking'] : '',
+        'anio'         => isset( $info['Local']['anio_construccion'] ) ? $info['Local']['anio_construccion'] : null,
+        'conservacion' => $estado_conservacion,
+        'interior'     => '',
+        'ascensor'     => '',
+        'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+    );
+  }
+
+  private function getInmueble_oficina( $info ) {
+
+    if (isset(self::$estados_conservacion[$info['Oficina']['estado_conservacion_id']])) {
+      $estado_conservacion = self::$estados_conservacion[$info['Oficina']['estado_conservacion_id']];
+    } else {
+      $estado_conservacion = '';
+    }
+
+    if (isset(self::$interior_exterior[ $info['Oficina']['interior_exterior_id']])) {
+      $interior_exterior = self::$interior_exterior[$info['Oficina']['interior_exterior_id']];
+    } else {
+      $interior_exterior = '';
+    }
+
+    return array(
+        'metros'       => $info['Oficina']['area_total_construida'],
+        'habitaciones' => $info['Oficina']['numero_habitaciones'],
+        'bannos'       => (int) $info['Oficina']['numero_banos'] + (int) $info['Oficina']['numero_aseos'],
+        'parking'      => ( $info['Oficina']['plazas_parking'] > 0 ) ? $info['Oficina']['plazas_parking'] : '',
+        'anio'         => isset( $info['Oficina']['anio_construccion'] ) ? $info['Oficina']['anio_construccion'] : null,
+        'conservacion' => $estado_conservacion,
+        'interior'     => $interior_exterior,
+        'ascensor'     => ( $info['Oficina']['numero_ascensores'] > 0 ) ? 'S' : '',
+        'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+
+    );
+  }
+
+  private function getInmueble_nave( $info ) {
+
+    if (isset(self::$estados_conservacion[$info['Nave']['estado_conservacion_id']])) {
+      $estado_conservacion = self::$estados_conservacion[$info['Nave']['estado_conservacion_id']];
+    } else {
+      $estado_conservacion = '';
+    }
+
+    return array(
+        'metros'       => $info['Nave']['area_total_construida'],
+        'habitaciones' => '',
+        'bannos'       => $info['Nave']['numero_aseos'],
+        'parking'      => ( $info['Nave']['plazas_parking'] > 0 ) ? $info['Nave']['plazas_parking'] : '',
+        'anio'         => isset( $info['Nave']['anio_construccion'] ) ? $info['Nave']['anio_construccion'] : null,
+        'conservacion' => $estado_conservacion,
+        'interior'     => '',
+        'ascensor'     => '',
+        'certificado' => (isset($info['CalificacionEnergetica'])) ? $info['CalificacionEnergetica']['description'] : ''
+    );
+  }
+
+  private function getInmueble_garaje( $info ) {
+    return array(
+        'metros'       => $info['Garaje']['area_total'],
+        'habitaciones' => '',
+        'bannos'       => '',
+        'parking'      => '',
+        'anio'         => '',
+        'conservacion' => '',
+        'interior'     => '',
+        'ascensor'     => '',
+        'certificado'  => ''
+    );
+  }
+
+  private function getInmueble_terreno( $info ) {
+    return array(
+        'metros'       => $info['Terreno']['area_total'],
+        'habitaciones' => '',
+        'bannos'       => '',
+        'parking'      => '',
+        'anio'         => '',
+        'conservacion' => '',
+        'interior'     => '',
+        'ascensor'     => '',
+        'certificado'  => ''
+    );
+  }
+
+  private function getInmueble_otro( $info ) {
+    return array(
+        'metros'       => $info['Otro']['area_total'],
+        'habitaciones' => '',
+        'bannos'       => '',
+        'parking'      => '',
+        'anio'         => '',
+        'conservacion' => '',
+        'interior'     => '',
+        'ascensor'     => '',
+        'certificado'  => ''
+    );
+  }
 
   public function getUrlDomibus() {
     $this->layout = null;
@@ -304,107 +354,110 @@ class HerramientasController extends AppController {
 
 		$agencia = $this->viewVars['agencia']['Agencia'];
 
-		$fields = array(
-			'Inmueble.id',
-			'Inmueble.tipo_inmueble_id',
-			'Inmueble.numero_agencia',
-			'Inmueble.codigo',
-			'Inmueble.es_venta',
-			'Inmueble.es_alquiler',
-			'Inmueble.es_traspaso',
-			'Inmueble.es_opcion_compra',
-			'Inmueble.precio_venta',
-			'Inmueble.precio_alquiler',
-			'Inmueble.precio_traspaso',
-			'Inmueble.nombre_calle',
-			'Inmueble.numero_calle',
-			'Inmueble.codigo_postal',
-			'Inmueble.poblacion',
-			'Inmueble.provincia',
-			'Inmueble.fecha_baja',
-			'Inmueble.fecha_captacion',
-			'Inmueble.agencia_id',
-			'Inmueble.agente_id',
-			'Inmueble.honor_agencia',
-			'Inmueble.numero_agencia',
-			'Inmueble.llaves',
-			'Inmueble.estado_inmueble_id',
-			'Inmueble.tipo_contrato_id',
+    $fields = array(
+        'Inmueble.id',
+        'Inmueble.tipo_inmueble_id',
+        'Inmueble.numero_agencia',
+        'Inmueble.codigo',
+        'Inmueble.es_venta',
+        'Inmueble.es_alquiler',
+        'Inmueble.es_traspaso',
+        'Inmueble.es_opcion_compra',
+        'Inmueble.precio_venta',
+        'Inmueble.precio_alquiler',
+        'Inmueble.precio_traspaso',
+        'Inmueble.nombre_calle',
+        'Inmueble.numero_calle',
+        'Inmueble.codigo_postal',
+        'Inmueble.poblacion',
+        'Inmueble.provincia',
+        'Inmueble.fecha_baja',
+        'Inmueble.fecha_captacion',
+        'Inmueble.agencia_id',
+        'Inmueble.agente_id',
+        'Inmueble.honor_agencia',
+        'Inmueble.numero_agencia',
+        'Inmueble.llaves',
+        'Inmueble.estado_inmueble_id',
+        'Inmueble.tipo_contrato_id',
 
-			'Piso.area_total_construida',
-			'Piso.numero_habitaciones',
-			'Piso.numero_banos',
-			'Piso.numero_aseos',
-			'Piso.con_parking',
-			'Piso.anio_construccion',
-			'Piso.plazas_parking',
-			'Piso.numero_ascensores',
-			'Piso.tipo_piso_id',
+        'Piso.area_total_construida',
+        'Piso.numero_habitaciones',
+        'Piso.numero_banos',
+        'Piso.numero_aseos',
+        'Piso.con_parking',
+        'Piso.anio_construccion',
+        'Piso.plazas_parking',
+        'Piso.numero_ascensores',
+        'Piso.tipo_piso_id',
 
-			'Piso.estado_conservacion_id',
-			'Piso.calificacion_energetica_id',
-			'Piso.interior_exterior_id',
+        'Piso.estado_conservacion_id',
+        'Piso.calificacion_energetica_id',
+        'Piso.interior_exterior_id',
 
-			'Chalet.area_total_construida',
-			'Chalet.numero_habitaciones',
-			'Chalet.numero_banos',
-			'Chalet.numero_aseos',
-			'Chalet.plazas_parking',
-			'Chalet.anio_construccion',
-			'Chalet.con_ascensor',
-			'Chalet.tipo_chalet_id',
+        'Chalet.area_total_construida',
+        'Chalet.numero_habitaciones',
+        'Chalet.numero_banos',
+        'Chalet.numero_aseos',
+        'Chalet.plazas_parking',
+        'Chalet.anio_construccion',
+        'Chalet.con_ascensor',
+        'Chalet.tipo_chalet_id',
 
-			'Chalet.estado_conservacion_id',
-			'Chalet.calificacion_energetica_id',
+        'Chalet.estado_conservacion_id',
+        'Chalet.calificacion_energetica_id',
 
-			'Local.area_total_construida',
-			'Local.numero_aseos',
-			'Local.plazas_parking',
-			'Local.anio_construccion',
+        'Local.area_total_construida',
+        'Local.numero_aseos',
+        'Local.plazas_parking',
+        'Local.anio_construccion',
 
-			'Local.estado_conservacion_id',
-			'Local.calificacion_energetica_id',
+        'Local.estado_conservacion_id',
+        'Local.calificacion_energetica_id',
 
-			'Nave.area_total_construida',
-			'Nave.numero_aseos',
-			'Nave.plazas_parking',
-			'Nave.anio_construccion',
+        'Nave.area_total_construida',
+        'Nave.numero_aseos',
+        'Nave.plazas_parking',
+        'Nave.anio_construccion',
 
-			'Nave.estado_conservacion_id',
-			'Nave.calificacion_energetica_id',
+        'Nave.estado_conservacion_id',
+        'Nave.calificacion_energetica_id',
 
-			'Oficina.area_total_construida',
-			'Oficina.numero_habitaciones',
-			'Oficina.numero_banos',
-			'Oficina.numero_aseos',
-			'Oficina.numero_ascensores',
-			'Oficina.plazas_parking',
-			'Oficina.anio_construccion',
-			'Oficina.tipo_oficina_id',
+        'Oficina.area_total_construida',
+        'Oficina.numero_habitaciones',
+        'Oficina.numero_banos',
+        'Oficina.numero_aseos',
+        'Oficina.numero_ascensores',
+        'Oficina.plazas_parking',
+        'Oficina.anio_construccion',
+        'Oficina.tipo_oficina_id',
 
-			'Oficina.estado_conservacion_id',
-			'Oficina.calificacion_energetica_id',
-			'Oficina.interior_exterior_id',
+        'Oficina.estado_conservacion_id',
+        'Oficina.calificacion_energetica_id',
+        'Oficina.interior_exterior_id',
 
-			'Garaje.tipo_garaje_id',
-			'Garaje.area_total',
+        'Garaje.tipo_garaje_id',
+        'Garaje.area_total',
 
-			'Terreno.tipo_terreno_id',
-			'Terreno.area_total',
+        'Terreno.tipo_terreno_id',
+        'Terreno.area_total',
 
-			'Otro.area_total',
+        'Otro.area_total',
 
-			'TipoInmueble.id',
-			'TipoInmueble.description',
-			'EstadoInmueble.id',
-			'EstadoInmueble.description',
-			'Inmueble.zona',
+        'TipoInmueble.id',
+        'TipoInmueble.description',
+        'EstadoInmueble.id',
+        'EstadoInmueble.description',
+        'Inmueble.zona',
 
-			'Propietario.nombre_contacto',
-			'Propietario.telefono1_contacto'
-		);
+        'Propietario.nombre_contacto',
+        'Propietario.telefono1_contacto',
 
-		$inmuebles = $this->Inmueble->find('all', array(
+        'Agente.nombre_contacto'
+    );
+
+
+    $inmuebles = $this->Inmueble->find('all', array(
 			'fields' => $fields,
 			'conditions' => array(
 				'Inmueble.agencia_id' => $agencia['id'],
@@ -425,7 +478,7 @@ class HerramientasController extends AppController {
 			$precio_venta = ($inm['Inmueble']['es_venta'] == 't') ? $inm['Inmueble']['precio_venta'] : '';
 			$precio_alq = ($inm['Inmueble']['es_alquiler'] == 't') ? $inm['Inmueble']['precio_alquiler'] : '';
 
-			// Direcci�n
+			// Dirección
 			if (!empty($inm['Inmueble']['nombre_calle']) && !empty($inm['Inmueble']['codigo_postal'])) {
 				$direccion = $inm['Inmueble']['nombre_calle'] . ' ' . $inm['Inmueble']['numero_calle'] .
 					' C.P.' . $inm['Inmueble']['codigo_postal'] . ' - ' .	$inm['Inmueble']['poblacion'] . ' (' . $inm['Inmueble']['provincia'] . ')';
@@ -435,11 +488,12 @@ class HerramientasController extends AppController {
 
 			// Portales
 			$portales = '';
+			$portalesArray = [];
 			if (!empty($inm['Portal'])) {
 				foreach ($inm['Portal'] as $portal) {
-					$portales[] = $portal['description'];
+          $portalesArray[] = $portal['description'];
 				}
-				$portales = implode(', ', $portales);
+				$portales = implode(', ', $portalesArray);
 			}
 
 			$getInmuebleInfo = 'getInmueble_' . strtolower($subtipoClass);
@@ -483,9 +537,9 @@ class HerramientasController extends AppController {
 		}
 
 		$_serialize = 'data';
-		$_header = array('Referencia', 'Tipo', 'Subtipo', 'Precio venta', 'Precio alquiler', 'Direcci�n', 'Zona', 'M Construidos',
-			'Habitaciones',	'Ba�os',	'Parking', 'A�o de construcci�n',	'Estado de conservaci�n',	'Interior/exterior',
-			'Ascensor',	'Certificado energetico',	'Propietario', 'm�vil',	'Agente',	'Estado',	'Fecha de captacion',
+		$_header = array('Referencia', 'Tipo', 'Subtipo', 'Precio venta', 'Precio alquiler', 'Dirección', 'Zona', 'M Construidos',
+			'Habitaciones',	'Baños',	'Parking', 'Año de construcción',	'Estado de conservación',	'Interior/exterior',
+			'Ascensor',	'Certificado energetico',	'Propietario', 'móvil',	'Agente',	'Estado',	'Fecha de captacion',
 			'Fecha de baja', 'Tipo de encargo',	'Honorarios', 'Oficina', 'Llaves', 'Portales');
 
 		$this->viewClass = 'CsvView.Csv';
@@ -531,8 +585,8 @@ class HerramientasController extends AppController {
 		}
 
 		$_serialize = 'data';
-		$_header = array('Referencia', 'Demandante', 'M�vil', 'Agente', 'Tipo', 'Subtipo',
-			'Operaci�n', 'Precio minimo', 'Habitaciones min', 'Ba�os Min', 'Parking', 'Ascensor', 'Zona');
+		$_header = array('Referencia', 'Demandante', 'Móvil', 'Agente', 'Tipo', 'Subtipo',
+			'Operaci�n', 'Precio minimo', 'Habitaciones min', 'Baños Min', 'Parking', 'Ascensor', 'Zona');
 
 		$this->viewClass = 'CsvView.Csv';
 		$this->response->download('listado de demandantes.csv');

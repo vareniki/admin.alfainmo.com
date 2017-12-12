@@ -78,7 +78,7 @@
 	</script>
 <?php $this->end(); ?>
 <?php
-echo $this->Form->create(false, array('id' => 'searchForm', 'action' => '/index', 'class' => 'compressed'));
+echo $this->Form->create(false, array('id' => 'searchForm', 'url' => '/inmuebles/index', 'class' => 'compressed'));
 echo $this->Form->hidden('data_polygons', array('id' => 'dataPolygons', 'name' => 'data_polygons'));
 
 echo $this->Form->hidden('sortBy', array('name' => 'sortBy'));
@@ -121,12 +121,16 @@ $opcAvanzadas = (isset($this->request->data['opcionesAvanzadas_item']) && $this-
 		<div class="col-xs-4 col-sm-2">
 			<?php echo $this->Form->select('operacion', $operaciones, array('name' => 'operacion', 'class' => 'form-control', 'type' => 'number')); ?>
 		</div>
-		<div class="col-xs-4 col-sm-2">
+		<div class="col-xs-2 col-sm-1">
 			<?php echo $this->Form->select('habitaciones', $minimoDormitorios, array('name' => 'habitaciones', 'class' => 'form-control', 'label' => false)); ?>
 		</div>
-		<div class="col-xs-4 col-sm-2">
+		<div class="col-xs-2 col-sm-1">
 			<?php echo $this->Form->select('banos', $minimoBannos, array('name' => 'banos', 'class' => 'form-control', 'label' => false)); ?>
 		</div>
+        <div class="col-xs-4 col-sm-2">
+          <?php echo $this->Form->input('precio_min', array('name' => 'precio_min', 'class' => 'form-control', 'label' => false,
+                'min' => 0, 'max' => '3000000', 'maxlength' => 7, 'placeholder' => 'precio m&iacute;nimo', 'escape' => false)); ?>
+        </div>
 		<div class="col-xs-4 col-sm-2">
 			<?php echo $this->Form->input('precio', array('name' => 'precio', 'class' => 'form-control', 'label' => false,
 				'min' => 0, 'max' => '3000000', 'maxlength' => 7, 'placeholder' => 'precio m&aacute;ximo', 'escape' => false)); ?>
@@ -147,12 +151,18 @@ $opcAvanzadas = (isset($this->request->data['opcionesAvanzadas_item']) && $this-
 			echo $this->Form->checkbox('ascensor', array('name' => 'ascensor', 'value' => 't', 'label' => 'con ascensor'));
 			?>
 		</div>
-		<div class="col-xs-4 col-sm-2">
+		<div class="col-xs-4 col-sm-1">
 			<?php
 			echo $this->Form->checkbox('trastero', array('name' => 'trastero', 'value' => 't', 'label' => 'trastero'));
 			echo $this->Form->checkbox('piscina', array('name' => 'piscina', 'value' => 't', 'label' => 'piscina'));
 			?>
 		</div>
+        <div class="col-xs-4 col-sm-1">
+          <?php
+          echo $this->Form->checkbox('bajo', array('name' => 'bajo', 'value' => 't', 'label' => 'bajo'));
+          echo $this->Form->checkbox('terraza', array('name' => 'terraza', 'value' => 't', 'label' => 'terraza'));
+          ?>
+        </div>
 		<div class="col-xs-4 col-sm-2">
 			<?php
 			echo $this->Form->checkbox('no_bajo', array('name' => 'no_bajo', 'value' => 't', 'label' => 'no bajo'));

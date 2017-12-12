@@ -28,7 +28,7 @@ $this->start('header'); ?>
 </script>
 <?php $this->end();
 
-echo $this->Form->create(false, array('id' => 'searchForm', 'action' => '/index', 'class' => 'busqueda inline-form'));
+echo $this->Form->create(false, array('id' => 'searchForm', 'url' => '/propietarios/index', 'class' => 'busqueda inline-form'));
 echo $this->Form->hidden('sortBy', array('name' => 'sortBy'));
 ?>
   <div class="input-group">
@@ -66,11 +66,11 @@ if (isset($info)): ?>
 
         $icons = '';
         if ($profile['is_central'] || $profile['is_agencia'] || ($profile['is_agente'] && $agente['Agente']['id'] == $item['Inmueble']['agente_id'])) {
-          $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Propietario']['id'] . '/' . $url_64, array('escape' => false));
+          $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Propietario']['id'], array('escape' => false));
         }
 
-        $link = 'view/' . $item['Propietario']['id'] . '/' . $url_64;
-	      $link_inmueble = '/inmuebles/view/' . $item['Inmueble']['id'] . '/' . $url_64;
+        $link = 'view/' . $item['Propietario']['id'];
+	      $link_inmueble = '/inmuebles/view/' . $item['Inmueble']['id'];
 	      $baja = (!empty($item['Propietario']['fecha_baja'])) ? ' baja' : '';
 
         echo $this->Html->tableCells(array(

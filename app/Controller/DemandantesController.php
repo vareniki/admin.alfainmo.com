@@ -30,8 +30,8 @@ class DemandantesController extends AppController {
         'TipoTerreno');
 
     public $paginate = array(
-        'limit' => 10,
-        'recursive' => 2,
+        'limit' => 50,
+        'recursive' => 0,
         'fields' => array('Demandante.*', 'Demanda.tipo', 'Demanda.operacion', 'Agente.id', 'Agente.nombre_contacto'),
         'order' => array('Demandante.id' => 'desc'));
 
@@ -144,8 +144,8 @@ class DemandantesController extends AppController {
 
         $this->set('operaciones', array('' => '-- operación --') + self::$operaciones);
         $this->set('maximoAnios', array('' => '-- max. años --', 'on' => 'obra nueva', '10' => 'hasta 10 años', '20' => 'hasta 20 años', '30' => 'hasta 30 años'));
-        $this->set('minimoDormitorios', array('' => '-- min. dormit. --', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
-        $this->set('minimoBannos', array('' => '-- min. baños --', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
+        $this->set('minimoDormitorios', array('' => '- dor -', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
+        $this->set('minimoBannos', array('' => '- bañ -', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
         $this->set('estadosConservacion', array('' => '-- conservación --') + self::getEstadosInmueble());
 
         $this->set('tiposEquipamiento', array('' => '-- equipamiento --') + $this->getTiposEquipamiento());
@@ -210,6 +210,8 @@ class DemandantesController extends AppController {
                 $this->Demandante->saveAssociated($info);
                 $datasource->commit();
 
+              $id = $this->Demandante->getLastInsertID();
+
                 $this->setSuccessFlash("El demandante se ha creado correctamente.");
                 $this->request->data = null;
             } catch (Exception $ex) {
@@ -222,28 +224,40 @@ class DemandantesController extends AppController {
             }
         }
 
+      if (!isset($id)) {
+
         $agencia = $this->viewVars['agencia']['Agencia'];
         $this->request->data['Demandante']['pais_id'] = $agencia['pais_id'];
 
-        $tipo_inmueble_id = (isset($this->request->data['Demanda']['tipo'])) ? $this->request->data['Demanda']['tipo'] : '';
-        $this->cargarInfoBusqueda($tipo_inmueble_id);
+        $tipo_inmueble_id = ( isset( $this->request->data['Demanda']['tipo'] ) ) ? $this->request->data['Demanda']['tipo'] : '';
+        $this->cargarInfoBusqueda( $tipo_inmueble_id );
 
-        $this->view = '/Demandantes/edit';
+        $this->view = '/Demandantes/edit/';
+
+      } else {
+
+        $this->view($id);
+        $this->view = '/Demandantes/view/';
+      }
     }
 
-    /**
-     * @param null $id
-     * @param null $url_64
-     */
-    public function view($id = null, $url_64 = null) {
+  /**
+   * @param null $id
+   *
+   * @return \Cake\Network\Response|null
+   */
+    public function view($id = null) {
 
         if (!isset($id)) {
-            return $this->redirect(array('controller' => 'demandantes', 'action' => 'index'));
+            return $this->redirect(array('controller' => 'demandantes', 'url' => 'index'));
         }
 
-        $info = $this->Demandante->find('first', array('conditions' => array('Demandante.id' => $id), 'recursive' => 2));
+        $info = Cache::read('DemandanteId-' . $id);
+        if (!$info) {
+          $info = $this->Demandante->find('first', array('conditions' => array('Demandante.id' => $id), 'recursive' => 2));
+          Cache::write('DemandanteId-' . $id, $info);
+        }
         $this->request->data = $info;
-        $this->request->data['referer'] = $url_64;
 
         $this->set('tiposInmueble', array('' => '-- tipo --') + self::$tiposInmueble);
         $this->set('operaciones', array('' => '-- operación --') + self::$operaciones);
@@ -263,54 +277,34 @@ class DemandantesController extends AppController {
         $this->set('info', $info);
     }
 
-    /**
-     * @param null $id
-     * @param null $url_64
-     */
-    /*
-    public function edit($id = null, $url_64 = null) {
-
-      if ($this->request->is('post')) {
-        $info = $this->request->data;
-
-        $id = $info['Demandante']['id'];
-        $url_64 = $info['referer'];
-
-          $this->Demandante->saveAssociated($info);
-
-        $this->setSuccessFlash("La información se ha guardado correctamente.");
-      }
-
-      $info = $this->Demandante->find('first', array('conditions' => array('Demandante.id' => $id), 'recursive' => 2));
-      $this->request->data = $info;
-      $this->request->data['referer'] = $url_64;
-
-      $this->set('info', $info);
-
-      $tipo_inmueble_id = (isset($this->request->data['Demanda']['tipo'])) ? $this->request->data['Demanda']['tipo'] : '';
-      $this->cargarInfoBusqueda($tipo_inmueble_id);
-    }*/
-
-    public function edit($id = null, $url_64 = null) {
+  /**
+   * @param null $id
+   */
+    public function edit($id = null) {
 
         if ($this->request->is('post')) {
             $info = $this->request->data;
 
             $id = $info['Demandante']['id'];
-            $url_64 = $info['referer'];
+
+            // Elimina la caché
+            Cache::delete('DemandanteId-' . $id);
 
             $this->Demandante->saveAssociated($info);
 
-            $this->view($id, $url_64);
+            $this->view($id);
 
             $this->view = '/Demandantes/view';
 
             //$this->setSuccessFlash("La información se ha guardado correctamente.");
         } else {
 
-            $info = $this->Demandante->find('first', array('conditions' => array('Demandante.id' => $id), 'recursive' => 2));
+            $info = Cache::read('DemandanteId-' . $id);
+            if (!$info) {
+              $info = $this->Demandante->find('first', array('conditions' => array('Demandante.id' => $id), 'recursive' => 2));
+              Cache::write('DemandanteId-' . $id, $info);
+            }
             $this->request->data = $info;
-            $this->request->data['referer'] = $url_64;
 
             $this->set('info', $info);
 

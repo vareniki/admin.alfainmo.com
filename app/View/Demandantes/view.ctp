@@ -9,11 +9,10 @@ $this->start('sidebar');
 echo $this->element('demandantes_left');
 $this->end();
 
-$url_64 = $this->data['referer'];
 $mapBtn_disabled = empty($info['Demanda']['data_polygons']);
 
 $this->start('header');
-echo $this->Html->script(array('alfainmo.ajax', 'bootbox'));
+echo $this->Html->script(['//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js', 'alfainmo.ajax']);
 ?>
 <script type="text/javascript">
 	$(document).ready(function () {
@@ -34,7 +33,6 @@ $this->end();
 			<ul>
 				<?php
 				$this->Model->printIfExists($info, 'referencia', array('label' => 'Referencia', 'model' => 'Demandante'));
-
 				$this->Model->printIfExists($info, 'nombre_contacto', array('label' => 'Nombre', 'model' => 'Demandante'));
 				$this->Model->printIfExists($info, 'email_contacto', array('label' => 'EMail', 'format' => 'email', 'model' => 'Demandante'));
 
@@ -75,13 +73,12 @@ $this->end();
 	</div>
 </div>
 <div class='text-right'>
-	<?php echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/demandante_id/' . $info['Demandante']['id'] . '/' . $url_64, array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n"; ?>
-	<?php if (!empty($url_64)): ?>
-	<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i> volver al listado</a>
-	<?php endif; ?>
-	<?php
+	<?php echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/demandante_id/' . $info['Demandante']['id'], array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n";
+
+	echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/demandantes/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+
 	if ($agencia['Agencia']['id'] == $info['Agencia']['id']) {
-		$edit = 'edit/' . $info['Demandante']['id'] . '/' . $url_64;
+		$edit = 'edit/' . $info['Demandante']['id'];
 		echo $this->Html->link('<i class="glyphicon glyphicon-edit"></i> edici&oacute;n', $edit, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "\n";
 	}
 	?>
@@ -107,6 +104,7 @@ echo $this->Form->hidden('Demanda.subtipo', array('name' => 'subtipo'));
 echo $this->Form->hidden('Demanda.operacion', array('name' => 'operacion'));
 echo $this->Form->hidden('Demanda.habitaciones', array('name' => 'habitaciones'));
 echo $this->Form->hidden('Demanda.banos', array('name' => 'banos'));
+echo $this->Form->hidden('Demanda.precio_min', array('name' => 'precio_min'));
 echo $this->Form->hidden('Demanda.precio', array('name' => 'precio'));
 
 echo $this->Form->hidden('Demanda.estado_conservacion', array('name' => 'estado_conservacion'));
@@ -141,12 +139,15 @@ echo $this->Form->hidden('Demanda.no_ultimo', array('name' => 'no_ultimo'));
 	<div class="col-xs-4 col-sm-2">
 		<?php echo $this->Form->select('Demanda.operacion', $operaciones, array('class' => 'form-control', 'disabled' => 'disabled')); ?>
 	</div>
-	<div class="col-xs-4 col-sm-2">
-		<?php echo $this->Form->input('Demanda.habitaciones', array('class' => 'form-control', 'label' => false, 'disabled' => 'disabled', 'placeholder' => 'habitaciones')); ?>
+	<div class="col-xs-2 col-sm-1">
+		<?php echo $this->Form->input('Demanda.habitaciones', array('class' => 'form-control', 'label' => false, 'disabled' => 'disabled', 'placeholder' => 'dor')); ?>
 	</div>
-	<div class="col-xs-4 col-sm-2">
-		<?php echo $this->Form->input('Demanda.banos', array('class' => 'form-control', 'label' => false, 'disabled' => 'disabled', 'placeholder' => 'baños')); ?>
+	<div class="col-xs-2 col-sm-1">
+		<?php echo $this->Form->input('Demanda.banos', array('class' => 'form-control', 'label' => false, 'disabled' => 'disabled', 'placeholder' => 'bañ')); ?>
 	</div>
+    <div class="col-xs-4 col-sm-2">
+      <?php echo $this->Form->input('Demanda.precio_min', array('class' => 'form-control', 'label' => false, 'escape' => false, 'disabled' => 'disabled', 'placeholder' => 'precio_min')); ?>
+    </div>
 	<div class="col-xs-4 col-sm-2">
 		<?php echo $this->Form->input('Demanda.precio', array('class' => 'form-control', 'label' => false, 'escape' => false, 'disabled' => 'disabled', 'placeholder' => 'precio')); ?>
 	</div>

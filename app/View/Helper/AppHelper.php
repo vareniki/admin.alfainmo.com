@@ -154,28 +154,6 @@ class AppHelper extends Helper {
     );
   }
 
-  /**
-   * 
-   * @return type
-   */
-  public static function getJQueryVersion() {
-    $config = Configure::read('alfainmo');
-
-    $nav = self::getBrowser();
-    $nav_ver = (int) $nav['version'];
-    $jquery = $config['jquery.ie8.js'];
-
-    if (($nav['aname'] == 'Safari' && $nav_ver >= 5) ||
-            ($nav['aname'] == 'Chrome' && $nav_ver >= 20) ||
-            ($nav['aname'] == 'Firefox' && $nav_ver >= 10) ||
-            ($nav['aname'] == 'Opera' && $nav_ver >= 11)) {
-
-      $jquery = $config['jquery.js'];
-    }
-
-    return $jquery;
-  }
-
 	/**
 	 * @param $field
 	 * @param $label
@@ -368,7 +346,7 @@ class AppHelper extends Helper {
    * @param type $info
    * @return type
    */
-  public function contactoShowInfo($info, $link=null) {
+  public function contactoShowInfo($info, $link=null, $params=[]) {
 
 	  $tooltip = '';
     if (!empty($info['email_contacto'])) {
@@ -393,8 +371,10 @@ class AppHelper extends Helper {
 
 	  } else {
 
+      $params['escape'] = false;
+
 		  if ($link != null) {
-			  $result = $this->Html->link($info['nombre_contacto'], $link, array('escape' => false));
+			  $result = $this->Html->link($info['nombre_contacto'], $link, $params);
 		  } else {
 			  $result = $info['nombre_contacto'];
 		  }

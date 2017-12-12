@@ -27,7 +27,7 @@ $this->end();
 
 $url_64 = $this->data['referer'];
 
-echo $this->Form->create(false, array('id' => 'editForm', 'action' => 'edit', 'class' => 'form-horizontal aviso'));
+echo $this->Form->create(false, array('id' => 'editForm', 'url' => 'edit', 'class' => 'form-horizontal aviso'));
 echo $this->Form->hidden('referer');
 ?>
 	<div id="save-buttons" class="text-right">

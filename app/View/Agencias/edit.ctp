@@ -56,17 +56,13 @@ $this->start('header');
 <?php
 $this->end();
 
-if ($edit) {
-  $url_64 = $this->data['referer'];
-}
-echo $this->Form->create(false, array('id' => 'editForm', 'action' => $action, 'class' => 'form-horizontal aviso'));
-echo $this->Form->hidden('referer');
+echo $this->Form->create(false, array('id' => 'editForm', 'url' => $action, 'class' => 'form-horizontal aviso'));
 ?>
 	<div id="save-buttons" class="text-right">
-		<?php if ($edit): ?>
-			<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i> volver al listado</a>
-		<?php endif; ?>
-		<?php echo $this->Form->submit('grabar', array('class' => 'btn btn-sm btn-primary', 'div' => false)); ?>
+      <?php if ($edit):
+        echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/agencias/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+      endif;
+      echo $this->Form->submit('grabar', array('class' => 'btn btn-sm btn-primary', 'div' => false)); ?>
 	</div>
 	<hr>
 <?php
@@ -75,12 +71,13 @@ echo $this->Form->hidden('User.id');
 echo $this->Form->hidden('User.active');
 
 echo $this->App->horizontalInput('Agencia.nombre_agencia', '<span>[*]</span> Nombre de la agencia:', array('maxlength' => 50, 'required' => true));
+echo $this->App->horizontalInput('Agencia.nombre_fiscal', '<span>[*]</span> Nombre fiscal:', array('maxlength' => 80, 'required' => true));
+echo $this->App->horizontalInput('Agencia.cif', '<span>[*]</span> CIF:', array('maxlength' => 12, 'required' => true));
 echo $this->App->horizontalInput('Agencia.numero_agencia', '<span>[*]</span> Número de la agencia:', array('type' => 'number', 'required' => $edit, 'readonly' => $edit));
 echo $this->App->horizontalInput('User.username', '<span>[*]</span> Usuario:', array('minlength' => 4, 'maxlength' => 30, 'required' => true, 'readonly' => $hay_usr));
 
-echo $this->App->horizontalInput('User.password', 'Password:', array('maxlength' => 20, 'minlength' => 6, 'autocomplete' => 'off',
-		'placeholder' => (($hay_usr) ? 'si lo desea escriba una nueva contraseña' : 'escriba una contraseña'), 'value' => '',
-    'required' => ($hay_usr) ? false : true));
+echo $this->App->horizontalInput('User.password', '<span>[*]</span> Password:', array('maxlength' => 20, 'minlength' => 6, 'autocomplete' => 'off',
+        'placeholder' => (($hay_usr) ? 'si lo desea escriba una nueva contraseña' : 'escriba una contraseña'), 'value' => '', 'required' => ($hay_usr) ? false : true));
 
 echo $this->App->horizontalSelect('Agencia.pais_id', '<span>[*]</span> Pa&iacute;s:', $paises);
 echo $this->App->horizontalInput('Agencia.web', '<span>[*]</span> Web', array('maxlength' => 64, 'required' => true));
@@ -132,6 +129,18 @@ echo $this->App->horizontalTextarea('Agencia.observaciones', 'Observaciones:', a
     ?>
   </div>
 </div>
+    <div class="form-group">
+        <label class="control-label col-md-5 col-lg-4 col-sm-4">Central en Web:</label>
+        <div class="col-md-7 col-lg-8 col-sm-8">
+          <?php
+          if ($edit) {
+            echo $this->Form->checkbox('Agencia.central_web', array('value' => 't', 'label' => 'sí'));
+          } else {
+            echo $this->Form->checkbox('Agencia.central_web', array('value' => 't', 'label' => 'sí', 'checked' => false));
+          }
+          ?>
+        </div>
+    </div>
 
 <div class="row">
   <div class="col-xs-5 col-lg-4 col-sm-4"></div>

@@ -4,9 +4,6 @@ $config['logQueries'] = 1;
 $config['alfainmo'] = array(
   'images.path' => '/Users/dmonje/Public/imagenes_alfa/',
 	'documents.path' => '/Users/dmonje/Public/documentos_alfa/',
-  'jquery.ie8.js' => 'http://code.jquery.com/jquery-1.11.3.min.js',
-  'jquery.js' => 'http://code.jquery.com/jquery-2.1.4.min.js',
-  'maps.api.js' => 'http://maps.google.com/maps/api/js?sensor=false',
   'catastro.url' => 'http://ovc.catastro.meh.es/ovcservweb/ovcswlocalizacionrc/ovccallejero.asmx/Consulta_DNPLOC'
 );
 

@@ -33,7 +33,7 @@ class AgendaInfoComponent extends SessionComponent {
 		}
 
 		if (!empty($request['hasta'])) {
-			$conditions['Evento.fecha <='] = $request['hasta'];
+			$conditions['Evento.fecha <='] = $request['hasta'] . ' 23:59:59';
 		}
 
 		if (isset($request['estado'])) {

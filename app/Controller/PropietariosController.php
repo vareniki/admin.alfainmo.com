@@ -16,7 +16,7 @@ class PropietariosController extends AppController {
   public $uses = array('Propietario', 'Contacto', 'Pais', 'HorarioContacto', 'TipoEvento');
   public $paginate = array(
     'limit' => 10,
-    'recursive' => 1,
+    'recursive' => 0,
     'fields' => array('Propietario.*', 'Inmueble.id', 'Inmueble.agencia_id', 'Inmueble.numero_agencia', 'Inmueble.codigo', 'Inmueble.agente_id'),
     'order' => array('Propietario.id' => 'desc'));
 

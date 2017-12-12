@@ -16,7 +16,6 @@ $this->set('title_for_layout', $title);
 $mapBtn_disabled = empty($this->request->data['Demanda']['data_polygons']);
 
 $this->start('header');
-echo $this->Html->script(array('http://maps.googleapis.com/maps/api/js?sensor=false&libraries=drawing,places', 'alfainmo.maps'));
 ?>
 <script type="text/javascript">
 
@@ -56,6 +55,8 @@ echo $this->Html->script(array('http://maps.googleapis.com/maps/api/js?sensor=fa
 			$("#dataPolygons").val("");
 
 			$(this).addClass("disabled");
+
+            drawingManager.clear();
 		});
 
 		$("#DemandaBusqueda").on("change", function () {
@@ -85,11 +86,7 @@ $this->end();
 
 echo $this->element('common/map_dialog');
 
-if ($edit) {
-	$url_64 = $this->data['referer'];
-}
-
-echo $this->Form->create(false, array('id' => 'editForm', 'action' => $action, 'class' => 'aviso'));
+echo $this->Form->create(false, array('id' => 'editForm', 'url' => $action, 'class' => 'aviso'));
 echo $this->Form->hidden('referer');
 
 echo $this->Form->hidden('Demandante.id');
@@ -98,9 +95,9 @@ echo $this->Form->hidden('Demandante.numero_agencia', array('value' => $agencia[
 echo $this->Form->hidden('Demanda.data_polygons', array('id' => 'dataPolygons'));
 ?>
 <div id="save-buttons" class="text-right">
-	<?php if ($edit): ?>
-		<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i> volver al listado</a>
-	<?php endif; ?>
+	<?php if ($edit):
+        echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/demandantes/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+	endif; ?>
 	<?php echo $this->Form->submit('grabar', array('class' => 'btn btn-sm btn-primary', 'div' => false)); ?>
 </div>
 <hr>
@@ -178,12 +175,16 @@ echo $this->Form->hidden('Demanda.data_polygons', array('id' => 'dataPolygons'))
 	<div class="col-xs-4 col-sm-2">
 		<?php echo $this->Form->select('Demanda.operacion', $operaciones, array('class' => 'form-control obligat', 'type' => 'number')); ?>
 	</div>
-	<div class="col-xs-4 col-sm-2">
+	<div class="col-xs-2 col-sm-1">
 		<?php echo $this->Form->select('Demanda.habitaciones', $minimoDormitorios, array('class' => 'form-control', 'label' => false)); ?>
 	</div>
-	<div class="col-xs-4 col-sm-2">
+	<div class="col-xs-2 col-sm-1">
 		<?php echo $this->Form->select('Demanda.banos', $minimoBannos, array('class' => 'form-control', 'label' => false)); ?>
 	</div>
+    <div class="col-xs-4 col-sm-2">
+      <?php echo $this->Form->input('Demanda.precio_min', array('class' => 'form-control obligat', 'label' => false,
+                                                            'min' => 0, 'max' => '3000000', 'maxlength' => 7, 'placeholder' => 'precio m&iacute;nimo', 'escape' => false)); ?>
+    </div>
 	<div class="col-xs-4 col-sm-2">
 		<?php echo $this->Form->input('Demanda.precio', array('class' => 'form-control obligat', 'label' => false,
 			'min' => 0, 'max' => '3000000', 'maxlength' => 7, 'placeholder' => 'precio m&aacute;ximo', 'escape' => false)); ?>

@@ -16,7 +16,7 @@ class AgentesController extends AppController {
   public $uses = array('Agente', 'Pais');
   public $paginate = array(
     'limit' => 10,
-    'recursive' => 1,
+    'recursive' => 0,
     'fields' => array('Agente.*', 'User.active'),
     'order' => array('Agente.id' => 'desc'));
 
@@ -107,11 +107,9 @@ class AgentesController extends AppController {
 	}
 
   /**
-   * 
-   * @param type $id
-   * @param type $url_64
+   * @param null $id
    */
-  public function edit($id = null, $url_64 = null) {
+  public function edit($id = null) {
 
     /*
      * Comprueba si se le pasa un parámetro ($id). En caso de que se le pase dicho parámetro reinicia y obtiene la última página.
@@ -121,7 +119,6 @@ class AgentesController extends AppController {
       $info = $this->request->data;
 
       $id = $info['Agente']['id'];
-      $url_64 = $info['referer'];
 
       if (empty($info['User']['password'])) {
         unset($info['User']['password']);
@@ -151,7 +148,6 @@ class AgentesController extends AppController {
     $info = $this->Agente->find('first', array('conditions' => array('Agente.id' => $id), 'recursive' => 2));
 
     $this->request->data = $info;
-    $this->request->data['referer'] = $url_64;
 
     $this->set('info', $info);
 	  $this->set('paises', $this->getPaises());

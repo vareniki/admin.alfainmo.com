@@ -1,7 +1,7 @@
 
 <?php
 
-echo $this->Form->create(false, array('id' => 'searchForm2', 'action' => 'index'));
+echo $this->Form->create(false, array('id' => 'searchForm2', 'url' => 'index'));
 echo $this->Form->hidden('q', array('name' => 'q'));
 
 echo '<label>Busco...</label>';

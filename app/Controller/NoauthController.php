@@ -7,7 +7,7 @@
  */
 
 
-class NoAuthController extends Controller {
+class NoauthController extends Controller {
 
 	public $uses = array('Documento', 'Inmueble');
 
@@ -72,6 +72,7 @@ class NoAuthController extends Controller {
 
 			$basename = pathinfo($img, PATHINFO_BASENAME);
 			$file = $folder . $path . DIRECTORY_SEPARATOR . $pref . $basename;
+      $file_wm = $folder . $path . DIRECTORY_SEPARATOR . $pref . 'wm_' . $basename;
 
 			if (file_exists($file)) {
 
@@ -79,15 +80,29 @@ class NoAuthController extends Controller {
 				$this->response->type("image/$ext");
 
 				if ($watermark) {
-					$gd = ImageTool::watermark(array(
-							'input' => $file,
-							'watermark' => 'img/watermark.png',
-							'opacity' => '15'
-					));
 
-					ob_start();
-					imagepng($gd);
-					$result = ob_get_clean();
+				  if (file_exists($file_wm) && filemtime($file_wm) < filemtime($file)) {
+            unlink($file_wm);
+          }
+
+				  if (!file_exists($file_wm)) {
+
+            ImageTool::watermark(array(
+                'input' => $file,
+                'output' => $file_wm,
+                'watermark' => 'img/watermark.png',
+                'opacity' => '15',
+                'position' => 'bottom-left'
+            ));
+
+          }
+          if (file_exists($file_wm)) {
+            $result = readfile($file_wm);
+          } else {
+            $result = readfile($file);
+          }
+
+
 				} else {
 					$result = readfile($file);
 				}
@@ -133,7 +148,7 @@ class NoAuthController extends Controller {
 	/**
 	 * @param $id
 	 */
-	public function inmueble($id) {
+	public function inmueble($id, $pvi) {
 		// Llama a la función específica en función del tipo de inmueble actual
 		$this->layout = null;
 		//$this->autoRender = false;
@@ -144,5 +159,21 @@ class NoAuthController extends Controller {
 		$tipoInmueble = self::$tiposInmueble[$info['Inmueble']['tipo_inmueble_id']];
 		$this->set('tipoInmueble', $tipoInmueble);
 		$this->set('calidadPrecio', self::$calidadPrecio);
+		$this->set('pvi', $pvi);
 	}
+
+  public function inmueble2($id, $pvi) {
+    // Llama a la función específica en función del tipo de inmueble actual
+    $this->layout = null;
+    //$this->autoRender = false;
+
+    $info = $this->Inmueble->find('first', array('conditions' => array('Inmueble.id' => $id), 'recursive' => 2));
+    $this->set('info', $info);
+
+    $tipoInmueble = self::$tiposInmueble[$info['Inmueble']['tipo_inmueble_id']];
+    $this->set('tipoInmueble', $tipoInmueble);
+    $this->set('calidadPrecio', self::$calidadPrecio);
+    $this->set('pvi', $pvi);
+  }
+
 } 

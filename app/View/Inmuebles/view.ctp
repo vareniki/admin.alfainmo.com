@@ -123,6 +123,10 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 				echo '<p class="titulo">Descripci&oacute;n abreviada:</p>';
 				$this->Model->printIfExists($info, 'descripcion_abreviada', array('tag' => 'p'));
 			}
+            if (!empty($info['Inmueble']['observaciones_pvi'])) {
+              echo '<p class="titulo">Observaciones particular/vende:</p>';
+              $this->Model->printIfExists($info, 'observaciones_pvi', array('tag' => 'p'));
+            }
 			?>
 		</div>
 
@@ -274,11 +278,44 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 <div id="tab3" class="tab-pane ficha">
 
 	<?php if (!empty($info['Inmueble']['video'])): ?>
-		<p class="titulo">V&iacute;deo</p>
-		<div class='text-right'>
-			<?php echo $info['Inmueble']['video']; ?>
-		</div>
+    <p class="titulo">V&iacute;deos</p>
+    <div class='text-right'>
+        <?php
+        $videos = $this->Inmuebles->parseVideos($info['Inmueble']['video']);
+        if (!empty($videos[0])) {
+          foreach($videos[0] as $video) {
+            echo "<a href='$video' target='_blank'>$video</a><br>";
+          }
+        }
+
+        if (!empty($videos[1])) {
+          foreach($videos[1] as $video) {
+            echo "<a href='$video' target='_blank'>$video</a> (PVI)<br>";
+          }
+        }
+        ?>
+    </div>
 	<?php endif; ?>
+    <?php if (!empty($info['Inmueble']['tour_virtual'])): ?>
+      <p class="titulo">Tours virtuales</p>
+      <div class='text-right'>
+        <?php
+        $tours = $this->Inmuebles->parseVideos($info['Inmueble']['tour_virtual']);
+        if (!empty($tours[0])) {
+          foreach($tours[0] as $tour) {
+            echo "<a href='$tour' target='_blank'>$tour</a><br>";
+          }
+        }
+
+
+        if (!empty($tours[1])) {
+          foreach($tours[1] as $tour) {
+            echo "<a href='$tour' target='_blank'>$tour</a> (PVI)<br>";
+          }
+        }
+        ?>
+      </div>
+    <?php endif; ?>
 	<p class="titulo">Fotos</p>
 
 	<div id='gallery-buttons' class="btn-group pull-right">
@@ -346,13 +383,13 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 <hr>
 <div class="text-right">
 	<?php
-	echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/inmueble_id/' . $info['Inmueble']['id'] . '/' . $url_64, array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n\n";
+	echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/inmueble_id/' . $info['Inmueble']['id'], array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n\n";
 	echo $this->Html->link('Ficha de escaparate', 'fichaEscaparate/' . $info['Inmueble']['id'], array('escape' => false, 'class' => 'btn btn-default btn-sm')) . "\n";
 	echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/inmuebles/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
 
 	$can_edit = $this->Inmuebles->canEdit($profile, $info, $agencia, $agente);
 	if ($can_edit) {
-		$edit = 'edit/' . $info['Inmueble']['id'] . '/' . $url_64;
+		$edit = 'edit/' . $info['Inmueble']['id'];
 		echo $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', $edit, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "&nbsp;\n";
 	}
 	?>

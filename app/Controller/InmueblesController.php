@@ -19,7 +19,7 @@ class InmueblesController extends AppController {
     'TipoAA', 'SubtipoCalefaccion', 'TipoCalefaccion', 'TipoAguaCaliente', 'TipoOrientacion', 'TipoSuelo',
     'TipoPuerta', 'TipoVentana', 'TipoTendedero', 'TipoEquipamiento', 'TipoCableado', 'EstadoConservacion',
     'Contacto', 'TipoContrato', 'MedioCaptacion', 'InteriorExterior', 'CalificacionEnergetica', 'LocalizacionLocal',
-    'HorarioContacto', 'TipoImagen', 'TipoEvento', 'MotivoBaja', 'EstadoInmueble', 'Provincia', 'Poblacion', 'Agente');
+    'HorarioContacto', 'TipoImagen', 'TipoEvento', 'MotivoBaja', 'EstadoInmueble', 'Provincia', 'Poblacion', 'Agente', 'InmuebleWeb');
 
   private static $tiposInmueble = array(
     '01' => 'piso',
@@ -106,6 +106,7 @@ class InmueblesController extends AppController {
 			'Piso.estado_conservacion_id',
 	    'Piso.tipo_piso_id',
 	    'Piso.piso',
+      'Piso.area_terraza',
       'Chalet.area_total_construida',
 	    'Chalet.numero_habitaciones',
 	    'Chalet.numero_banos',
@@ -114,6 +115,8 @@ class InmueblesController extends AppController {
 	    'Chalet.plazas_parking',
 	    'Chalet.estado_conservacion_id',
 	    'Chalet.tipo_chalet_id',
+      'Chalet.area_terraza',
+      'Chalet.area_parcela',
       'Local.area_total_construida',
 	    'Local.numero_aseos',
 	    'Local.plazas_parking',
@@ -142,7 +145,8 @@ class InmueblesController extends AppController {
       'TipoMoneda.symbol',
 		  'Agente.id',
       'Agente.nombre_contacto'),
-    'order' => array('Inmueble.numero_agencia' => 'asc', 'Inmueble.codigo' => 'desc')
+
+        'order' => array('Inmueble.numero_agencia' => 'asc', 'Inmueble.codigo' => 'desc')
   );
 
 
@@ -687,8 +691,8 @@ class InmueblesController extends AppController {
 	  $this->set('subtiposInmueble', $subtipos);
 	  $this->set('operaciones', array('' => '-- operación --') + self::$operaciones);
 	  $this->set('maximoAnios', array('' => '-- años --', 'on' => 'obra nueva', '10' => 'hasta 10 años', '20' => 'hasta 20 años', '30' => 'hasta 30 años'));
-	  $this->set('minimoDormitorios', array('' => '-- min. dormit. --', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
-	  $this->set('minimoBannos', array('' => '-- min. baños --', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
+	  $this->set('minimoDormitorios', array('' => '- dor -', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
+	  $this->set('minimoBannos', array('' => '- bañ -', '1' => '1+', '2' => '2+', '3' => '3+', '4' => '4+'));
 	  $this->set('estadosConservacion', array('' => '-- conservación --') + self::getEstadosConservacion());
 
 	  $this->set('tiposEquipamiento', array('' => '-- equipamiento --') + $this->getTiposEquipamiento());
@@ -741,7 +745,8 @@ class InmueblesController extends AppController {
 		  }
 
 		  $this->Paginator->settings = $this->paginate;
-		  $this->set('info', $this->Paginator->paginate('Inmueble', $search));
+		  $info = $this->Paginator->paginate('Inmueble', $search);
+		  $this->set('info', $info);
 	  } else {
 		  $this->set('info', array());
 	  }
@@ -763,7 +768,11 @@ class InmueblesController extends AppController {
     }
 
     // Llama a la función específica en función del tipo de inmueble actual
-    $info = $this->Inmueble->find('first', array('conditions' => array('Inmueble.id' => $id), 'recursive' => 2));
+    $info = Cache::read('InmuebleId-' . $id);
+    if (!$info) {
+      $info = $this->Inmueble->find( 'first', array( 'conditions' => array( 'Inmueble.id' => $id ), 'recursive' => 2 ) );
+      Cache::write('InmuebleId-' . $id, $info);
+    }
     $this->set('info', $info);
 
     $tipoInmueble = self::$tiposInmueble[$info['Inmueble']['tipo_inmueble_id']];
@@ -794,8 +803,8 @@ class InmueblesController extends AppController {
 					 * NUEVO INMUEBLE
 					 */
 				  $nuevoInmueble = true;
-				  $lastInfo      = $this->Session->read( 'Inmueble.info' );
-				  $id            = $this->salvarInmueble( $info, $lastInfo );
+				  $lastInfo  = $this->Session->read( 'Inmueble.info' );
+				  $id = $this->salvarInmueble( $info, $lastInfo );
 
 			  } else {
 
@@ -803,6 +812,9 @@ class InmueblesController extends AppController {
 					 * EDICIÓN DE INMUEBLE
 					 */
 				  $id = $info['Inmueble']['id'];
+
+          // Elimina la caché
+          Cache::delete('InmuebleId-' . $id);
 
 				  if ( $info['Inmueble']['estado_inmueble_id'] == '02' ) {
 					  $aceptar_estado = true;
@@ -880,7 +892,12 @@ class InmueblesController extends AppController {
 	  }
 	  $this->set( 'selectedTab', $selectedTab );
 
-	  $info = $this->Inmueble->find( 'first', array( 'conditions' => array( 'Inmueble.id' => $id ), 'recursive' => 2 ) );
+    //$info = Cache::read('InmuebleId-' . $id);
+    //if (!$info) {
+    $info = $this->Inmueble->find( 'first', array( 'conditions' => array( 'Inmueble.id' => $id ), 'recursive' => 2 ) );
+    //Cache::write('InmuebleId-' . $id, $info);
+    //}
+
 	  $this->Session->write( 'Inmueble.info', $info );
 
 	  $agencia = $this->viewVars['agencia']['Agencia'];
@@ -892,12 +909,13 @@ class InmueblesController extends AppController {
 		  $info['Propietario']['pais_id'] = $agencia['pais_id'];
 	  }
 
-	  $this->request->data = $this->InmueblesInfo->depurarInfoInmueble( $info, array(
+	  $this->request->data = $this->InmueblesInfo->depurarInfoInmueble( $info, [
 			  'TipoSuelo',
 			  'TipoPuerta',
 			  'TipoVentana',
-			  'Portal'
-	  ) );
+			  'Portal',
+        'NoPortal',
+        'CentralPortal']);
 
 	  if ( isset( $info['referer'] ) ) {
 		  $this->request->data['referer'] = $info['referer'];
@@ -917,12 +935,30 @@ class InmueblesController extends AppController {
 	  $this->set( 'estadosInmueble', $this->getEstadosInmueble() );
 
 	  $this->set( 'calidadPrecio', self::$calidadPrecio );
-	  $this->set( 'portales', $this->getPortales() );
-	  $this->set( 'noPortales', $this->getNoPortales() );
 
-	  //if ( $this->isCentral() ) {
-	    $this->set( 'centralPortales', $this->getCentralPortales() );
-    //}
+	  $portales = $this->getPortales();
+	  $noPortales = $this->getNoPortales();
+
+    if ($info['TipoInmueble']['id'] >= '03') {
+      // Idealista
+      unset($portales['01']);
+      unset($noPortales['01']);
+
+      // Destacados Idealista
+      if (isset($portales['04'])) {
+        unset($portales['04']);
+        unset($noPortales['04']);
+      }
+
+      if (isset($portales['05'])) {
+        unset($portales['05']);
+        unset($noPortales['05']);
+      }
+    }
+
+	  $this->set( 'portales', $portales );
+	  $this->set( 'noPortales', $noPortales );
+    $this->set( 'centralPortales', $this->getCentralPortales() );
 
 	  if ($info['Agencia']['id'] == $agencia['id']) {
 		  $this->set('agentes', $this->getAllAgentesAgencia());

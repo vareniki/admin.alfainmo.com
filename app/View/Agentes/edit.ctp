@@ -35,17 +35,14 @@ $this->start('header');
 <?php
 $this->end();
 
-if ($edit) {
-  $url_64 = $this->data['referer'];
-}
-echo $this->Form->create(false, array('id' => 'editForm', 'action' => $action, 'class' => 'form-horizontal aviso'));
+echo $this->Form->create(false, array('id' => 'editForm', 'url' => $action, 'class' => 'form-horizontal aviso'));
 echo $this->Form->hidden('referer');
 ?>
 	<div id="save-buttons" class="text-right">
-		<?php if ($edit): ?>
-			<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i> volver al listado</a>
-		<?php endif; ?>
-		<?php echo $this->Form->submit('grabar', array('class' => 'btn btn-sm btn-primary', 'div' => false)); ?>
+		<?php if ($edit):
+          echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/agentes/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+        endif;
+        echo $this->Form->submit('grabar', array('class' => 'btn btn-sm btn-primary', 'div' => false)); ?>
 	</div>
 <hr>
 <div class="tabbable ficha">
@@ -63,8 +60,7 @@ echo $this->Form->hidden('referer');
 			echo $this->App->horizontalInput('Agente.email_contacto', '<span>[*]</span> EMail/usuario:', array('type' => 'email', 'maxlength' => 50, 'required' => true));
 
       echo $this->App->horizontalInput('User.password', '<span>[*]</span> Password:', array('maxlength' => 20, 'minlength' => 6, 'autocomplete' => 'off',
-        'placeholder' => (($hay_usr) ? 'si lo desea escriba una nueva contraseña' : 'escriba una contraseña'), 'value' => '',
-        'required' => ($hay_usr) ? false : true));
+        'placeholder' => (($hay_usr) ? 'si lo desea escriba una nueva contraseña' : 'escriba una contraseña'), 'value' => '', 'required' => ($hay_usr) ? false : true));
 
 			echo $this->App->horizontalInput('Agente.telefono1_contacto', 'Teléfono principal:', array('maxlength' => 15));
 			echo $this->App->horizontalInput('Agente.telefono2_contacto', 'Teléfono 2:', array('maxlength' => 15));

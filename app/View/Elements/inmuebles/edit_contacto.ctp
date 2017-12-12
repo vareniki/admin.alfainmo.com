@@ -1,7 +1,7 @@
 <?php $this->start('header'); ?>
 <script type='text/javascript'>
   $(document).ready(function() {
-    $("#buscarPropietario_btn").on("click", function() {
+    $("#buscarPropietario_btn, #buscarPropietario2_btn").on("click", function() {
       buscador_ajax({
         action: '<?php echo $this->base; ?>/ajax/getPropietariosOficina/',
         help: 'Nombre, apellidos o tel&eacute;fono del propietario',
@@ -46,7 +46,7 @@ echo $this->Form->hidden('Contacto.id');
 
 echo '<h3 class="section">Datos de propietario</h3>';
 echo $this->App->horizontalInput('Propietario.nombre_contacto', 'Propietario/s:', array('maxlength' => 50, 'click' => array('icon' => 'search', 'id' => 'buscarPropietario_btn'), 'labelClass' => 'obligat'));
-echo $this->App->horizontalInput('Propietario.telefono1_contacto', 'Teléfono principal:', array('maxlength' => 30, 'labelClass' => 'obligat'));
+echo $this->App->horizontalInput('Propietario.telefono1_contacto', 'Teléfono principal:', array('maxlength' => 30, 'click' => array('icon' => 'search', 'id' => 'buscarPropietario2_btn'), 'labelClass' => 'obligat'));
 echo $this->App->horizontalInput('Propietario.telefono2_contacto', 'Teléfono 2:', array('maxlength' => 30));
 echo $this->App->horizontalInput('Propietario.email_contacto', 'EMail:', array('type' => 'email', 'maxlength' => 50));
 

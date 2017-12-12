@@ -38,21 +38,12 @@ $this->end(); ?>
             <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Hoja de visita alquileres', 'http://www.alfainmo.com/descargas/hoja-de-visita-alquiler.doc', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Ficha de escaparate', 'http://www.alfainmo.com/descargas/ficha_de_escaparate.docx', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <a href="https://youtu.be/x_VLxc7h0uY" target="_blank">Tutorial de procesos de captaci&oacute;n</a></li>
+            <li><i class="glyphicon glyphicon-list"></i> <a href="http://www.alfainmo.com/descargas/ficha-captacion.pdf" target="_blank">Ficha de captaci&oacute;n</a></li>
         </ul>
         <p></p>
     </div>
 </div>
 
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">Publicidad</h3>
-    </div>
-    <div class="panel-body">
-        <ul class="list-unstyled">
-            <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Publicidad', 'publicidad/', array('escape' => false)); ?></li>
-        </ul>
-    </div>
-</div>
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Colaboradores</h3>

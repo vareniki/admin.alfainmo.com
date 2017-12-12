@@ -8,8 +8,8 @@ if (isset($info['TipoMoneda']['symbol'])) {
 echo $this->App->horizontalSelect('Inmueble.estado_inmueble_id', 'Estado:', $estadosInmueble, array('size' => 5, 'labelClass' => 'obligat'));
 echo $this->App->horizontalInput('Inmueble.fecha_captacion', 'Fecha de captación:', array('type' => 'text', 'readonly' => 'readonly'));
 echo '<div class="row"><div class="col-xs-8 col-xs-offset-4"><div class="alert alert-warning text-justify">
-	<strong>Atenci&oacute;n</strong> Para que la aplicaci&oacute;n te acepte el inmueble como Captado, es obligatorio cumplimentar todos los campos que est&aacute;n en verde,
-	plano y fotos. De lo contrario se quedar&aacute; en el mercado por captar y ese inmueble puede ser captado por otro compa&ntilde;ero de la
+	<strong>Atenci&oacute;n</strong> Para que la aplicaci&oacute;n te acepte el inmueble como Captado, es obligatorio cumplimentar todos los campos que est&aacute;n en verde
+	y fotos. De lo contrario se quedar&aacute; en el mercado por captar y ese inmueble puede ser captado por otro compa&ntilde;ero de la
 	red y no sale publicado en ning&uacute;n medio de Internet.</div></div></div>';
 echo $this->App->horizontalSelect('Inmueble.tipo_contrato_id', 'Tipo de encargo:', $tiposContrato, array('size' => 5, 'labelClass' => 'obligat'));
 echo $this->App->horizontalSelect('Inmueble.medio_captacion_id', 'Medio de captación:', $mediosCaptacion, array('size' => 8));
@@ -125,7 +125,7 @@ echo $this->App->horizontalInput('Inmueble.llaves', 'Observaciones llaves:', arr
 		<div class="col-xs-7 col-lg-8 col-sm-8"><p class="text-info"><em>use tecla "control" para seleccionar o desmarcar varios portales.</em></p></div>
 	</div>
 <?php
-echo $this->App->horizontalSelect('Inmueble.Portal', 'Destacados:', $portales, array('multiple' => 'multiple', 'size' => 7));
+echo $this->App->horizontalSelect('Inmueble.Portal', 'Portales inmobiliarios:', $portales, array('multiple' => 'multiple', 'size' => 7));
 echo $this->App->horizontalSelect('Inmueble.NoPortal', 'Quitar de:', $noPortales, array('multiple' => 'multiple'));
 ?>
 	<div class="row">

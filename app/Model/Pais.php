@@ -16,6 +16,7 @@ class Pais extends AppModel {
 			'associationForeignKey' => 'tipo_moneda_id',
 			'order' => 'orden',
 			'unique' => 'keepExisting',
+      'alias' => 'MonedaPais'
 		)
 	);
 }

@@ -78,7 +78,7 @@ $this->start('header');
 </script>
 <?php
 $this->end();
-echo $this->Form->create(false, array('id' => 'addForm', 'action' => 'edit', 'class' => 'form-horizontal aviso'));
+echo $this->Form->create(false, array('id' => 'addForm', 'url' => 'edit', 'class' => 'form-horizontal aviso'));
 echo $this->Form->hidden('Inmueble.agencia_id', array('value' => $agencia['Agencia']['id']));
 echo $this->Form->hidden('Inmueble.numero_agencia', array('value' => $agencia['Agencia']['numero_agencia']));
 echo $this->Form->hidden('Inmueble.estado_inmueble_id', array('value' => '01'));

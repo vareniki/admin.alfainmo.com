@@ -23,246 +23,162 @@ if (isset($lats_lng[$pais_id])) {
 } else {
 	$lat_lng = $lats_lng[34];
 }?>
-	<script type="text/javascript">
+<script type="text/javascript">
 
-		var $modalMap = null;
-		var searchMap = null;
-		var selectedShape = null;
-		var drawingManager = null;
-		var searchMarkers = [];
+    var $modalMap = null;
+    var searchMap = null;
+    var drawingTools = null;
+    var drawingManager = null;
 
-		var capitalLatLng = [];
+    var capitalLatLng = [];
 
-		<?php foreach ($lats_lng as $key => $value) {
-			$value1 = $value[0];
-			$value2 = $value[1];
-			echo "capitalLatLng[$key]=[$value1,$value2];";
-		} ?>
+    <?php foreach ($lats_lng as $key => $value) {
+        $value1 = $value[0];
+        $value2 = $value[1];
+        echo "capitalLatLng[$key]=[$value1,$value2];";
+    } ?>
 
-		/**
-		 *
-		 */
-		function map_initShapes() {
+    function maps_initializeDialog() {
 
-			$('#dataPolygons_hidden').val('');
-			$("#dataPolygons_clear").attr("disabled", "disabled");
-			$("#dataPolygons_assign").attr("disabled", "disabled");
+        if (searchMap != null) {
+            return;
+        }
+        searchMap = new Microsoft.Maps.Map('#map-search-canvas', {
+            //credentials: 'Aqfs7CzJhu8QXpKYvNvVOUmcPjD5wfDqi2sUqsjLiMqAs6Vz-49N-1oy06OscqOl',
+            center: new Microsoft.Maps.Location(<?php echo $lat_lng[0] ?>, <?php echo $lat_lng[1] ?>),
+            disableZooming: false,
+            mapTypeId: Microsoft.Maps.MapTypeId.road, zoom: 16 });
 
-			if (selectedShape) {
-				selectedShape.setMap(null);
-				maps_createShapes();
-			}
-		}
+        Microsoft.Maps.loadModule('Microsoft.Maps.DrawingTools', function () {
+            drawingTools = new Microsoft.Maps.DrawingTools(searchMap);
+            drawingTools.showDrawingManager(function (manager) {
 
-		/**
-		 * Se ha terminado de dibujar un polígono
-		 */
-		function map_on_polygonComplete(drawpolygons) {
+                drawingManager = manager;
 
-			map_addDeleteButton(drawpolygons, 'http://admin.alfainmo.com/img/close-buttons.png');
-			drawingManager.setOptions({ drawingMode: null });
+                var da = Microsoft.Maps.DrawingTools.DrawingBarAction;
+                manager.setOptions({
+                    drawingBarActions: da.polygon | da.erase
+                });
 
-			$('#dataPolygons_hidden').val(maps_getPolygonsField(drawpolygons.getPaths()));
-			$("#dataPolygons_clear").removeAttr("disabled");
-			$("#dataPolygons_assign").removeAttr("disabled");
-		}
+                Microsoft.Maps.Events.addHandler(manager, 'drawingStarted', function () {
+                    $("#dataPolygons_assign").removeAttr("disabled");
+                });
 
-		/**
-		 * Cada vez que ha cambiado un lugar
-		 */
-		function map_on_placesChanged(searchBox) {
-			var places = searchBox.getPlaces();
+                Microsoft.Maps.Events.addHandler(manager, 'drawingEnded', function () {
+                    $("#dataPolygons_assign").removeAttr("disabled");
+                });
 
-			// For each place, get the icon, place name, and location.
-			for (var i=0, marker; marker = searchMarkers[i]; i++) {
-				marker.setMap(null);
-			}
-			searchMarkers = [];
-			var bounds = new google.maps.LatLngBounds();
-			for (var i=0, place; place = places[i]; i++) {
-				var image = {
-					url: place.icon,
-					size: new google.maps.Size(71, 71),
-					origin: new google.maps.Point(0, 0),
-					anchor: new google.maps.Point(17, 34),
-					scaledSize: new google.maps.Size(25, 25)
-				};
+                Microsoft.Maps.Events.addHandler(manager, 'drawingErased', function () {
+                    //printText('Drawing erased.');
+                });
 
-				// Create a marker for each place.
-				var marker = new google.maps.Marker({
-					map: searchMap,
-					icon: image,
-					title: place.name,
-					position: place.geometry.location
-				});
+                maps_createShapes();
+            });
+        });
+    }
 
-				searchMarkers.push(marker);
+    function maps_getPolygonsFieldArray() {
+        var result='';
 
-				bounds.extend(place.geometry.location);
-			}
+        var primitives = drawingManager.getPrimitives();
+        for (var i=0; i<primitives.length; i++) {
+            var locations = primitives[i].getLocations();
+            for (var j=0; j< locations.length -1; j++) {
+                result += ',' + locations[j].latitude + ',' + locations[j].longitude;
+            }
+            result += "\n";
+        }
 
-			searchMap.fitBounds(bounds);
+        if (result.length > 0) {
+            result = result.substring(1);
+        }
+        return result;
+    }
 
-			if (searchMarkers.length == 1) {
-				searchMap.setZoom(17);
-			} else if (searchMarkers.length == 2) {
-				searchMap.setZoom(12);
-			}
-		}
+    function maps_createShapes() {
 
-    /**
-     * Se inicializa el diálogo la primera vez
-     */
-		function maps_initializeDialog() {
+        var dataPolygons = $("#dataPolygons_hidden").val();
+        var newShape = null;
+        if (dataPolygons != '') {
+            var linesArray = dataPolygons.split("\n");
+            for (var l=0; l<linesArray.length; l++) {
 
-			searchMap = new google.maps.Map(document.getElementById('map-search-canvas'), {
-				mapTypeId: google.maps.MapTypeId.ROADMAP,
-				center: new google.maps.LatLng(<?php echo $lat_lng[0] ?>,<?php echo $lat_lng[1] ?>),
-				maxZoom: 18,
-				minZoom: 10,
-				zoom: 14,
-				scrollwheel: false
-			});
+                if (linesArray[l] == '') {
+                    continue;
+                }
 
-	    var searchInput = document.getElementById('map-search-input');
+                var polygonsArray = linesArray[l].split(",");
+                var coordsArray = new Array();
+                var j=0;
+                for (var i=0; i<polygonsArray.length; i+=2) {
+                    coordsArray[j++] = new Microsoft.Maps.Location(polygonsArray[i], polygonsArray[i+1])
+                }
+                newShape = new Microsoft.Maps.Polygon(coordsArray, null);
+                drawingManager.add(newShape);
+            }
+        }
+        if (newShape != null) {
+            $("#dataPolygons_assign").removeAttr("disabled");
+        }
+    }
 
-			//searchMap.fitBounds(defaultBounds);
-			searchMap.controls[google.maps.ControlPosition.TOP_LEFT].push(searchInput);
+    function maps_initializeSearch() {
+        Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', function () {
+            var options = {
+                maxResults: 5,
+                map: searchMap
+            };
+            var manager = new Microsoft.Maps.AutosuggestManager(options);
+            manager.attachAutosuggest('#map-search-input', '#map-search-container', map_searchResults);
+        });
+    }
 
-			var searchBox = new google.maps.places.SearchBox(searchInput);
-			google.maps.event.addListener(searchBox, 'places_changed', function() {
-				map_on_placesChanged(searchBox);
-				map_initShapes();
-			});
+    function map_searchResults(item) {
+        drawingManager.clear();
+        searchMap.entities.clear();
+        searchMap.setView({ bounds: item.bestView, zoom: 14 });
+    }
 
-			google.maps.event.addListener(searchMap, 'bounds_changed', function () {
-				searchBox.setBounds(searchMap.getBounds());
-			});
+    $(document).ready(function() {
 
-			google.maps.event.addDomListener(document.getElementById('dataPolygons_clear'), 'click', function() {
-				map_initShapes();
-			});
-		}
+        $("#dataPolygons_hidden").val($("#dataPolygons").val());
 
-		/**
-		 *
-		 */
-		function maps_createShapes() {
+        $modalMap = $("#modalMap");
+        $modalMap.on('shown.bs.modal', function (e) {
 
-			drawingManager = new google.maps.drawing.DrawingManager({
-				drawingMode: google.maps.drawing.OverlayType.POLYGON,
-				drawingControl: false,
-				polygonOptions: {
-					strokeColor: '#70b08e',
-					fillColor: '#70b08e',
-					fillOpacity: 0.5,
-					strokeWeight: 3,
-					clickable: true,
-					editable: true,
-					dragable: false,
-					zIndex: 1
-				}
-			});
+            var bodyHeight = $(window).height()
+            var dialogHeight =	$('div.modal-header', "#modalMap").height() +	$('div.modal-footer', "#modalMap").height() + 190;
+            $('div.modal-body', "#modalMap").height(bodyHeight - dialogHeight);
 
-			google.maps.event.addListener(drawingManager, 'polygoncomplete', function(drawpolygons) {
-				map_on_polygonComplete(drawpolygons);
-			});
+            maps_initializeDialog();
+            maps_initializeSearch();
+        });
 
-			google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
-				selectedShape = e.overlay;
-			});
+        $("#dataPolygons_assign").on("click", function() {
 
-			// Comprueba si hay algún polígono
-			var dataPolygons = $("#dataPolygons_hidden").val();
-			if (dataPolygons != '') {
-
-				var coordsArray = new Array();
-				var j=0;
-				var polygonsArray = dataPolygons.split(",");
-				for (var i=0; i<polygonsArray.length; i+=2) {
-					coordsArray[j++] = new google.maps.LatLng(polygonsArray[i], polygonsArray[i+1]);
-				}
-
-				var bounds = new google.maps.LatLngBounds();
-				for (j = 0; j < coordsArray.length; j++) {
-					bounds.extend(coordsArray[j]);
-				}
-				searchMap.setCenter(bounds.getCenter());
-
-				selectedShape = new google.maps.Polygon({
-					paths: coordsArray,
-					map: searchMap,
-
-					strokeColor: '#70b08e',
-					fillColor: '#70b08e',
-					fillOpacity: 0.5,
-					strokeWeight: 3,
-					clickable: true,
-					editable: true,
-					dragable: false,
-					zIndex: 1
-				});
-
-				map_on_polygonComplete(selectedShape);
-			}
-
-			drawingManager.setMap(searchMap);
-		}
-
-    /**
-     *
-     */
-		$(document).ready(function() {
-
-			$("#dataPolygons_hidden").val($("#dataPolygons").val());
-
-			$modalMap = $("#modalMap");
-			$modalMap.on('shown.bs.modal', function (e) {
-
-				var bodyHeight = $(window).height()
-				var dialogHeight =	$('div.modal-header', "#modalMap").height() +	$('div.modal-footer', "#modalMap").height() + 190;
-
-				$('div.modal-body', "#modalMap").height(bodyHeight - dialogHeight);
-				if (searchMap == null) {
-					maps_initializeDialog();
-					maps_createShapes();
-				} else {
-					google.maps.event.trigger(searchMap, 'resize');
-				}
-
-			});
-
-			$("#dataPolygons_assign").on("click", function() {
-				var info = $("#map-search-input").val();
-				if (info != '') {
-					info = 'área definida en ' + info;
-				} else {
-					info = 'área definida';
-				}
-				$("#mapInfo").val(info);
-				$("#dataPolygons").val($("#dataPolygons_hidden").val());
-				$("#busqueda-mapBtn_clear").removeClass("disabled");
-				$("#q").val("");
-			});
-
-		});
-	</script>
+            $("#dataPolygons_hidden").val(maps_getPolygonsFieldArray());
+            $("#dataPolygons").val($("#dataPolygons_hidden").val());
+            $("#busqueda-mapBtn_clear").removeClass("disabled");
+            $("#q").val("");
+        });
+    });
+</script>
 <?php $this->end(); ?>
-<div class="hidden"><input id="map-search-input" class="map-controls" type="text" placeholder="B&uacute;squeda"></div>
 <input id="dataPolygons_hidden" type="hidden" value="">
 <div class="modal fade" id="modalMap">
 	<div class="modal-dialog" style="width: 95%">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<p class="modal-title">Defina pinchando con el bot&oacute;n izquierdo del rat&oacute;n los puntos que formar&aacute;n el &aacute;rea que restringir&aacute; la b&uacute;squeda.</p>
+                <div class="col-xs-6">
+                    <div id="map-search-container"><input id="map-search-input" class="form-control" type="text" placeholder="B&uacute;squeda" autocomplete="off" /></div>
+                </div>
+                <div class="col-xs-6 text-right"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button></div>
 			</div>
 			<div class="modal-body">
 				<div id="map-search-canvas"></div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default btn-xs" data-dismiss="modal">Cancelar</button>
-				<button type="button" class="btn btn-danger btn-xs" id="dataPolygons_clear" disabled >Borrar</button>
+				<button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Cancelar</button>
 				<button type="button" class="btn btn-primary btn-xs" data-dismiss="modal" id="dataPolygons_assign" disabled>Asignar</button>
 			</div>
 		</div><!-- /.modal-content -->

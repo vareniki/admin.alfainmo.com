@@ -3,16 +3,79 @@
 $this->extend('/Common/view2top');
 $this->set('title_for_layout', 'B&uacute;squeda de Inmuebles');
 
-$url_64 = base64_encode($this->Html->url($this->request->data));
 $selectedTab = (!empty($this->passedArgs['selectedTab'])) ? $this->passedArgs['selectedTab'] : 'tab1';
 
 $this->start('header');
-echo $this->Html->script(array('http://maps.googleapis.com/maps/api/js?sensor=false&libraries=drawing,places', 'alfainmo.maps'));
+echo $this->Html->css(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/themes/redmond/jquery-ui.min.css'], null, ['inline' => false]);
+echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.min.js']);
 ?>
+<style type="text/css">
+    .infoboxText { text-align: center; background-color:White; border-style:solid; border-width:1px; border-color:#AAA; border-radius: 1px; min-height:190px; width: 240px; padding: 10px; }
+    .infoboxText img { width: 100%; }
+</style>
 <script type="text/javascript">
 
   var markers = [ <?php echo $this->Inmuebles->getMarkersMap($info, $agencia); ?> ];
-  var infoWindowContent = [ <?php echo $this->Inmuebles->getInfoMarkersMap($info, $url_64); ?> ];
+  var infoWindowContent = [ <?php echo $this->Inmuebles->getInfoMarkersMap($info); ?> ];
+  var infoBoxes = [];
+  var map;
+
+  function mapCallBack() {
+
+      var mapCenter = new Microsoft.Maps.Location(40.4168444, -3.7038783);
+
+      map = new Microsoft.Maps.Map('#map_canvas', {
+          center: mapCenter,
+          disableScrollWheelZoom: true,
+          mapTypeId: Microsoft.Maps.MapTypeId.road, zoom: 15 }
+      );
+
+      var iconURLPrefix = 'http://maps.google.com/mapfiles/ms/icons/';
+      var icons = [
+          iconURLPrefix + 'blue-dot.png',
+          iconURLPrefix + 'red-dot.png'
+      ]
+
+      var pins = [];
+
+      var infoboxTemplate = '<div class="infoboxText"><p><strong>{title}</strong></p><p>{description}</p><p>{foto}</p></div>';
+      var location = null;
+      infoBoxes = [];
+      for (i = 0; i < markers.length; i++) {
+          var icon_image = icons[markers[i][3]];
+
+          location = new Microsoft.Maps.Location(markers[i][1], markers[i][2]);
+          var content = infoboxTemplate.replace('{title}', infoWindowContent[i][0])
+              .replace('{description}', infoWindowContent[i][1])
+              .replace('{foto}', infoWindowContent[i][2]);
+
+          var pushpin = new Microsoft.Maps.Pushpin(location, { icon: icon_image });
+          var infobox = new Microsoft.Maps.Infobox(location, { htmlContent: content, visible: false });
+          infobox.setMap(map);
+
+          infoBoxes.push(infobox);
+
+          pushpin.infoBox = infobox;
+          Microsoft.Maps.Events.addHandler(pushpin, 'click', function (obj) {
+              for (j=0; j< infoBoxes.length; j++) {
+                  var infoBox = infoBoxes[j];
+                  if (infoBox != obj.target.infoBox) {
+                      infoBox.setOptions({ visible: false });
+                  } else {
+                      infoBox.setOptions({ visible: true });
+                  }
+              }
+
+          });
+
+          pins.push(pushpin);
+      }
+      if (location != null) {
+          map.setView({center: location});
+      }
+
+      map.entities.push(pins);
+  }
 
   $(document).ready(function() {
 
@@ -27,7 +90,6 @@ echo $this->Html->script(array('http://maps.googleapis.com/maps/api/js?sensor=fa
       $("#searchForm").submit();
 
 	    e.preventDefault();
-
     });
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -49,6 +111,8 @@ echo $this->Html->script(array('http://maps.googleapis.com/maps/api/js?sensor=fa
 		  $("#dataPolygons").val("");
 
 		  $(this).addClass("disabled");
+
+          drawingManager.clear();
 	  });
 
 	  $("#busqueda-clear").on("click", function() {
@@ -96,7 +160,6 @@ echo $this->Html->script(array('http://maps.googleapis.com/maps/api/js?sensor=fa
 		  map_initShapes();
 	  });
 
-	  maps_createMarkers(markers, infoWindowContent);
   });
 </script>
 <?php $this->end();
@@ -138,29 +201,29 @@ echo $this->element('inmuebles/index_form_busqueda');
         $icons = '';
 	      $can_edit = $this->Inmuebles->canEdit($profile, $item, $agencia, $agente);
 	      if ($can_edit) {
-          $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Inmueble']['id'] . '/' . $url_64, array('escape' => false));
+          $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Inmueble']['id'], array('escape' => false));
         }
-        $link = 'view/' . $item['Inmueble']['id'] . '/' . $url_64;
-	      $baja = (!empty($item['Inmueble']['fecha_baja'])) ? ' baja' : '';
+        $link = 'view/' . $item['Inmueble']['id'];
+          $baja = (!empty($item['Inmueble']['fecha_baja'])) ? ' baja' : '';
 
-	      $tipo = $this->Inmuebles->getSubtipo($item);
-			if (isset($item[$tipo]['estado_conservacion_id'])) {
-				switch ($item[$tipo]['estado_conservacion_id']) {
-					case '01':
-						$estado = 'reformar';
-						break;
-					case '02':
-						$estado = 'bueno';
-						break;
-					case '03':
-						$estado = 'nuevo';
-						break;
-					default:
-						$estado = '';
-				}
-			} else {
-				$estado = '';
-			}
+          $tipo = $this->Inmuebles->getSubtipo($item);
+            if (isset($item[$tipo]['estado_conservacion_id'])) {
+                switch ($item[$tipo]['estado_conservacion_id']) {
+                    case '01':
+                        $estado = 'reformar';
+                        break;
+                    case '02':
+                        $estado = 'bueno';
+                        break;
+                    case '03':
+                        $estado = 'nuevo';
+                        break;
+                    default:
+                        $estado = '';
+                }
+            } else {
+                $estado = '';
+            }
 	      $area = (!empty($item[$tipo]['area_total_construida'])) ? number_format($item[$tipo]['area_total_construida'], 0, ',', '.') : '';
 
 	      if (empty($area)) {
@@ -216,7 +279,7 @@ echo $this->element('inmuebles/index_form_busqueda');
     <div class="image-gallery-panel">
       <div class='image-gallery tam-m'>
         <?php foreach ($info as $item):
-            $link = 'view/' . $item['Inmueble']['id'] . '/' . $url_64;
+            $link = 'view/' . $item['Inmueble']['id'];
           ?>
           <div class="panel panel-default">
             <div class="panel-heading text-center"><?php echo $this->Inmuebles->printDescripcion($item); ?></div>

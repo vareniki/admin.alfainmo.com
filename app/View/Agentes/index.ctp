@@ -28,7 +28,7 @@ $this->start('header'); ?>
 $this->end();
 $url_64 = base64_encode($this->Html->url($this->request->data));
 
-echo $this->Form->create(false, array('id' => 'searchForm', 'action' => '/index', 'class' => 'busqueda inline-form'));
+echo $this->Form->create(false, array('id' => 'searchForm', 'url' => '/agentes/index', 'class' => 'busqueda inline-form'));
 echo $this->Form->hidden('sortBy', array('name' => 'sortBy'));
 ?>
 <div class="input-group">
@@ -61,9 +61,9 @@ echo $this->Form->hidden('sortBy', array('name' => 'sortBy'));
 
       $icons = '';
       if ($profile['is_agencia'] || $profile['is_coordinador']) {
-        $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Agente']['id'] . '/' . $url_64, array('escape' => false));
+        $icons = $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', 'edit/' . $item['Agente']['id'], array('escape' => false));
       }
-	    $link = 'view/' . $item['Agente']['id'] . '/' . $url_64;
+      $link = 'view/' . $item['Agente']['id'];
 
       $baja = ($item['User']['active'] != 't') ? ' baja' : '';
 

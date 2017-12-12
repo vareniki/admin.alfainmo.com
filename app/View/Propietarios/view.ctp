@@ -8,10 +8,9 @@ $this->set('title_for_layout', $title);
 $this->start('sidebar');
 echo $this->element('propietarios_left');
 $this->end();
-$url_64 = $this->data['referer'];
 
 $this->start('header');
-echo $this->Html->script(array('alfainmo.ajax', 'bootbox'));
+echo $this->Html->script(['//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js', 'alfainmo.ajax.js?ver=1.1.0']);
 ?>
 <script type="text/javascript">
 	$(document).ready(function () {
@@ -76,12 +75,13 @@ echo $this->Html->script(array('alfainmo.ajax', 'bootbox'));
 </div>
 <hr>
 <div class='text-right'>
-	<?php echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/propietario_id/' . $info['Propietario']['id'] . '/' . $url_64, array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n"; ?>
+	<?php echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/propietario_id/' . $info['Propietario']['id'], array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n"; ?>
 
-	<a href="<?php echo base64_decode($url_64) ?>" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-list"></i> volver al listado</a>
 	<?php
-	if ($agencia['Agencia']['id'] == $info['Inmueble']['agencia_id']) {
-		$edit = 'edit/' . $info['Propietario']['id'] . '/' . $url_64;
+    echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/propietarios/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+
+    if ($agencia['Agencia']['id'] == $info['Inmueble']['agencia_id']) {
+		$edit = 'edit/' . $info['Propietario']['id'];
 		echo $this->Html->link('<i class="glyphicon glyphicon-edit"></i> edici&oacute;n', $edit, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "\n";
 	}
 	?>

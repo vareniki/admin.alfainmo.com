@@ -88,7 +88,7 @@ de características y pegarlos en el texto y lo mismo con las fotos.</p>
 <p>Un saludo.</p>
 </div>
 <div style="text-align: center">
-	 <?php echo $this->Html->image('logo-alfa-2016-240.png', array('width' => '240px')); ?><br><br>
+	 <?php echo $this->Html->image('logo-20-aniversario-g.png', array('width' => '449px')); ?><br><br>
 </div>
 <div style="text-align: center">
 	 <img src="http://admin.alfainmo.com/img/imagen_portada.jpg" alt="Expresión del cambio" style="width:320px">

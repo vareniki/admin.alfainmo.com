@@ -38,9 +38,7 @@ $this->start( 'sidebar' );
 echo $this->element( 'agenda_top' );
 $this->end();
 
-$url_64 = base64_encode( $this->Html->url( $this->request->data ) );
-
-echo $this->Form->create( false, array( 'id' => 'searchForm', 'action' => '/listado', 'class' => 'busqueda inline-form') );
+echo $this->Form->create( false, array( 'id' => 'searchForm', 'url' => '/agenda/listado', 'class' => 'busqueda inline-form') );
 echo $this->Form->hidden( 'sortBy', array( 'name' => 'sortBy' ) );
 ?>
 <div class="row">
@@ -112,27 +110,27 @@ echo $this->Form->hidden( 'sortBy', array( 'name' => 'sortBy' ) );
 			<td><?php
 				if (isset($evento['Inmueble']['numero_agencia'])) {
 					$ref = 'REF. ' . $evento['Inmueble']['numero_agencia'] . '/' . $evento['Inmueble']['codigo'];
-					$link = '/inmuebles/view/' . $evento['Inmueble']['id'] . '/' . $url_64;
+					$link = '/inmuebles/view/' . $evento['Inmueble']['id'];
 
-					echo $this->Html->link($ref, $link);
+					echo $this->Html->link($ref, $link, ['target' => '_blank']);
 				}
 				?></td>
 			<td><?php
 				if (isset($evento['Propietario']['nombre_contacto'])) {
-					$link = '/propietarios/view/' . $evento['Propietario']['id'] . '/' . $url_64;
-					echo $this->Html->link($evento['Propietario']['nombre_contacto'], $link, array('escape' => false));
+					$link = '/propietarios/view/' . $evento['Propietario']['id'];
+					echo $this->Html->link($evento['Propietario']['nombre_contacto'], $link, array('escape' => false, 'target' => '_blank'));
 				}
 				?></td>
 			<td><?php
 				if (isset($evento['Demandante']['nombre_contacto'])) {
-					$link = '/demandantes/view/' . $evento['Demandante']['id'] . '/' . $url_64;
-					echo $this->Html->link($evento['Demandante']['nombre_contacto'], $link, array('escape' => false));
+					$link = '/demandantes/view/' . $evento['Demandante']['id'];
+					echo $this->Html->link($evento['Demandante']['nombre_contacto'], $link, array('escape' => false, 'target' => '_blank'));
 				}
 				?></td>
 			<td><?php
 				if (isset($evento['Agente']['nombre_contacto'])) {
-					$link = '/agentes/view/' . $evento['Agente']['id'] . '/' . $url_64;
-					echo $this->App->contactoShowInfo($evento['Agente'], $link);
+					$link = '/agentes/view/' . $evento['Agente']['id'];
+					echo $this->App->contactoShowInfo($evento['Agente'], $link, ['target' => '_blank']);
 				}
 				?></td>
 			<td><?php echo $this->Inmuebles->printEventoInfo($evento, $infoaux); ?></td>
