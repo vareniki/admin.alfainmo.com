@@ -12,7 +12,7 @@ class AjaxController extends AppController {
 	  'Inmuebles');
 
   public $uses = array('Propietario', 'Demandante', 'Inmueble', 'Evento', 'Zona', 'TipoChalet', 'TipoGaraje',
-	  'TipoOficina', 'TipoPiso', 'TipoTerreno', 'Poblacion', 'Provincia', 'TipoContrato', 'EstadoInmueble');
+	  'TipoOficina', 'TipoPiso', 'TipoTerreno', 'Poblacion', 'Provincia', 'TipoContrato', 'EstadoInmueble', 'SolicitudVisita');
 
 	/**
 	 * @return mixed
@@ -635,4 +635,73 @@ class AjaxController extends AppController {
 		$this->set('info', $info);
 	}
 
+	public function getSolicitarVisita($inmuebleId, $agenciaId, $comentarios) {
+    $this->layout = null;
+    $this->autoRender = false;
+
+    if (!$this->request->is('ajax')) {
+      return;
+    }
+
+    $solicitud = [];
+    $solicitud['SolicitudVisita']['inmueble_id'] = $inmuebleId;
+    $solicitud['SolicitudVisita']['fnt_agencia_id'] = $this->viewVars['agencia']['Agencia']['id'];
+    $solicitud['SolicitudVisita']['fnt_comentarios'] = base64_decode($comentarios);
+
+    if ($this->isAgente()) {
+      $solicitud['SolicitudVisita']['fnt_agente_id'] = $this->viewVars['agente']['Agente']['id'];
+    }
+    $solicitud['SolicitudVisita']['dst_respuesta_id'] = 0;
+    $solicitud['SolicitudVisita']['dst_agencia_id'] = $agenciaId;
+    $solicitud['SolicitudVisita']['fecha'] = date('Y-m-d H:i');
+
+    $this->SolicitudVisita->save($solicitud);
+
+    return $inmuebleId;
+  }
+
+
+  /**
+   *
+   */
+  public function getSolicitudesVisitasInmueble() {
+    if (!$this->request->is('ajax')) {
+      return;
+    }
+
+    $conditions = [];
+
+    $conditions['SolicitudVisita.fnt_agencia_id'] = $this->viewVars['agencia']['Agencia']['id'];
+    $conditions['SolicitudVisita.inmueble_id'] = $this->request->data['inmueble_id'];
+
+    $info = $this->SolicitudVisita->find('all', [
+        'fields' => ['SolicitudVisita.*', 'Inmueble.numero_agencia', 'Inmueble.codigo',  'FntAgente.nombre_contacto'],
+        'conditions' => $conditions,
+        'recursive' => 1
+    ]);
+
+    $this->set('info', $info);
+  }
+
+
+  public function responderSolicitud() {
+
+    $this->layout = null;
+    $this->autoRender = false;
+
+    if (!$this->request->is('ajax')) {
+      return;
+    }
+
+    $solicitudId = $_REQUEST['id'];
+    $comentarios = $_REQUEST['dst_comentarios'];
+    $respuestaId = $_REQUEST['dst_respuesta_id'];
+
+    $this->SolicitudVisita->updateAll(
+        ['SolicitudVisita.dst_comentarios' => "'$comentarios'",
+         'SolicitudVisita.dst_respuesta_id' => $respuestaId,
+         'SolicitudVisita.fecha_respuesta' => "'" . date('Y-m-d H:i') . "'"],
+
+        ['SolicitudVisita.id' => $solicitudId]);
+  }
 }

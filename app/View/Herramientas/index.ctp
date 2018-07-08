@@ -32,13 +32,18 @@ $this->end(); ?>
     </div>
     <div class="panel-body">
         <ul class="list-unstyled">
+            <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Preguntas frecuentes', 'http://www.alfainmo.com/descargas/Preguntas-Frecuentes-Alfa.pdf', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Generador de planos', 'http://www.alfainmo.com/descargas/generarPlanos.exe', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Hoja de visita', 'http://www.alfainmo.com/descargas/hoja_de_visita.doc', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Hoja de visita Andaluc&iacute;a', 'http://www.alfainmo.com/descargas/hoja_de_visita_andalucia.doc', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Hoja de visita alquileres', 'http://www.alfainmo.com/descargas/hoja-de-visita-alquiler.doc', array('escape' => false)); ?></li>
-            <li><i class="glyphicon glyphicon-list"></i> <?php echo $this->Html->link('Ficha de escaparate', 'http://www.alfainmo.com/descargas/ficha_de_escaparate.docx', array('escape' => false)); ?></li>
             <li><i class="glyphicon glyphicon-list"></i> <a href="https://youtu.be/x_VLxc7h0uY" target="_blank">Tutorial de procesos de captaci&oacute;n</a></li>
-            <li><i class="glyphicon glyphicon-list"></i> <a href="http://www.alfainmo.com/descargas/ficha-captacion.pdf" target="_blank">Ficha de captaci&oacute;n</a></li>
+            <li><i class="glyphicon glyphicon-list"></i> <a href="https://www.alfainmo.com/descargas/ficha-captacion.pdf" target="_blank">Ficha de captaci&oacute;n</a></li>
+            <li><i class="glyphicon glyphicon-list"></i> <a href="https://youtu.be/deYazmdJtQk" target="_blank">Tutorial Aplicación/CRM</a></li>
+
+            <li><i class="glyphicon glyphicon-list"></i> <a href="https://www.alfainmo.com/descargas/video-presentacion-alfa.mp4" target="_blank">Vídeo presentación Alfa</a></li>
+            <li><i class="glyphicon glyphicon-list"></i> <a href="https://www.alfainmo.com/descargas/plantilla-video-presentacion-alfa.pptx" target="_blank">Plantilla Vídeo presentación Alfa</a></li>
+            <li><i class="glyphicon glyphicon-list"></i> <a href="https://www.alfainmo.com/descargas/manual-modificar-video-presentacion-alfa.pdf" target="_blank">Manual para modificar el vídeo de presentación</a></li>
         </ul>
         <p></p>
     </div>

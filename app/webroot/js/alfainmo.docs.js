@@ -31,7 +31,7 @@ function getGalleryOrderedIds() {
   var j = 0;
   var ids = new Array();
   var elements = $('ul.image-gallery li.panel');
-  for (var i = 0; i < elements.size(); i++) {
+  for (var i = 0; i < elements.length; i++) {
     var itemprop = elements[i].getAttribute("itemprop");
     if (itemprop != null) {
       ids[j++] = itemprop;

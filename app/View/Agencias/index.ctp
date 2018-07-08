@@ -60,7 +60,7 @@ if (isset($info)): ?>
         '<a href="#web">Web</a>',
         '<a href="#telefono1_contacto">Tel&eacute;fonos</a>',
         '<a href="#provincia">Provincia</a>',
-        '<a href="#poblacion">Población</a>', '')); ?>
+        '<a href="#poblacion">Población</a>', '', '')); ?>
     </thead>
     <tbody>
       <?php foreach ($info as $item) {
@@ -72,6 +72,9 @@ if (isset($info)): ?>
         $link = 'view/' . $item['Agencia']['id'];
         $baja = ($item['Agencia']['active'] != 't') ? ' baja' : '';
 
+        $varios = $this->Model->getBooleans($item,
+            ['parvenca' => 'parvenca', 'solo_central' => 'sólo central', 'central_web' => 'central web'], ['model' => 'Agencia', 'tag' => 'p']);
+
         echo $this->Html->tableCells(array(
           $this->Html->link($item['Agencia']['numero_agencia'], $link, array('escape' => false)),
           $this->Html->link($item['Agencia']['nombre_agencia'], $link, array('escape' => false)),
@@ -80,7 +83,9 @@ if (isset($info)): ?>
 	        $this->Html->link($item['Agencia']['telefono1_contacto'], $link, array('escape' => false)),
           $this->Html->link($item['Agencia']['provincia'], $link, array('escape' => false)),
           $this->Html->link($item['Agencia']['poblacion'], $link, array('escape' => false)),
-          array($icons, array('class' => 'nowrap'))), array('class' => "odd$baja", 'escape' => false), array('class' => "even$baja"));
+          $this->Html->link($varios, $link, ['escape' => false]),
+          array($icons, array('class' => 'nowrap'))), array('class' => "odd$baja", 'escape' => false), array('class' => "even$baja")
+        );
       }
       ?>
     </tbody>

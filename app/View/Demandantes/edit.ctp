@@ -56,7 +56,9 @@ $this->start('header');
 
 			$(this).addClass("disabled");
 
-            drawingManager.clear();
+            if (drawingManager.getPrimitives()) {
+                drawingManager.clear();
+            }
 		});
 
 		$("#DemandaBusqueda").on("change", function () {

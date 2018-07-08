@@ -35,11 +35,17 @@ $this->end();
         $this->Model->printIfExists($info, 'coord_y', array('label' => 'Longitud', 'model' => 'Agencia'));
         $this->Model->printIfExists($info, 'nombre_contacto', array('label' => 'Nombre', 'model' => 'Agencia'));
         $this->Model->printIfExists($info, 'email_contacto', array('label' => 'EMail', 'format' => 'email', 'model' => 'Agencia'));
+        $this->Model->printIfExists($info, 'email_gdpr', array('label' => 'EMail', 'format' => 'email', 'model' => 'Agencia'));
         $this->Model->printIfExists($info, array('telefono1_contacto', 'telefono2_contacto'), array('label' => 'Teléfonos', 'format' => 'tel', 'model' => 'Agencia'));
         $this->Model->printIfExists($info, 'fax', array('label' => 'Fax', 'model' => 'Agencia'));
 
         $this->Model->printIfExists($info, 'observaciones', array('label' => 'Observaciones', 'model' => 'Agencia', 'format' => 'links_html'));
-				?>
+        $this->Model->printBooleans($info, [
+            'active' => 'activa',
+            'parvenca' => 'parvenca',
+            'solo_central' => 'sólo central',
+            'central_web' => 'central Web'], ['model' => 'Agencia', 'label' => 'Varios']);
+        ?>
       </ul>
     </div>
   </div>

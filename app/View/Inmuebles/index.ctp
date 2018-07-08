@@ -112,7 +112,9 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
 
 		  $(this).addClass("disabled");
 
-          drawingManager.clear();
+          if (drawingManager.getPrimitives()) {
+              drawingManager.clear();
+          }
 	  });
 
 	  $("#busqueda-clear").on("click", function() {
@@ -133,8 +135,6 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
 
 		  $("#dataPolygons").val("");
 		  $("#busqueda-mapBtn_clear").addClass("disabled");
-
-		  map_initShapes();
 
 		  return false;
 		});
@@ -157,7 +157,6 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
 		  $("#mapInfo").val("");
 		  $("#dataPolygons").val("");
 		  $("#busqueda-mapBtn_clear").addClass("disabled");
-		  map_initShapes();
 	  });
 
   });

@@ -33,6 +33,8 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
       visibles += ",.InmuebleEsTraspaso";
     if ($("#InmuebleEsOpcionCompra").is(":checked"))
       visibles += ",.InmuebleEsOpcionCompra";
+    if ($("#InmuebleEsParvenca").is(":checked"))
+          visibles += ",.InmuebleEsParvenca";
     if (visibles != "") {
       visibles = visibles.substr(1);
     }
@@ -113,6 +115,12 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
 	  } else {
 		  $("#ParticularPrecioInfo").hide();
 	  }
+
+      if ($("#InmuebleTipoContratoId").val() == 'PV') {
+          $("#HonorariosCompartidosInfo").hide();
+      } else {
+          $("#HonorariosCompartidosInfo").show();
+      }
   }
 
   $(document).ready(function() {
@@ -141,7 +149,7 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
     });
 
     calcularHonorarios();
-    $("#InmuebleHonorAgencia, #InmuebleHonorAgenciaUnid, #InmueblePrecioVenta, #InmueblePrecioAlquiler, #InmueblePrecioTraspaso").on("change", function() {
+    $("#InmuebleHonorAgencia, #InmuebleHonorAgenciaUnid, #InmueblePrecioVenta, #InmueblePrecioAlquiler, #InmueblePrecioTraspaso, #InmueblePrecioParvenca").on("change", function() {
       calcularHonorarios();
     });
 
@@ -160,10 +168,28 @@ echo $this->Html->script(['//ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.
       mostrarInfoBaja();
     });
 
-	  mostrarParticularVende();
-	  $("#InmuebleTipoContratoId").on("click", function() {
-		  mostrarParticularVende();
-	  });
+  mostrarParticularVende();
+  $("#InmuebleTipoContratoId").on("click", function() {
+      mostrarParticularVende();
+  });
+
+    <?php if ($agencia['Agencia']['numero_agencia'] != 1521) { ?>
+      if ($("#InmuebleDescripcion").val() == '') {
+          $("#InmuebleDescripcion").val("NO COBRAMOS HONORARIOS AL COMPRADOR. TRATO DIRECTO CON LA PROPIEDAD, TOTAL TRANSPARENCIA.");
+      }
+
+      if ($("#InmuebleDescripcionAbreviada").val() == '') {
+          $("#InmuebleDescripcionAbreviada").val("NO COBRAMOS HONORARIOS AL COMPRADOR. TRATO DIRECTO CON LA PROPIEDAD, TOTAL TRANSPARENCIA.");
+      }
+    <?php } else { ?>
+      if ($("#InmuebleDescripcion").val() == '') {
+          $("#InmuebleDescripcion").val("HONORARIOS AGENCIA INCLUIDOS EN EL PRECIO. TRATO DIRECTO CON LA PROPIEDAD, TOTAL TRANSPARENCIA.");
+      }
+
+      if ($("#InmuebleDescripcionAbreviada").val() == '') {
+          $("#InmuebleDescripcionAbreviada").val("HONORARIOS AGENCIA INCLUIDOS EN EL PRECIO. TRATO DIRECTO CON LA PROPIEDAD, TOTAL TRANSPARENCIA.");
+      }
+    <?php } ?>
 
     initGalleryButtons();
 
@@ -268,7 +294,7 @@ echo $this->Form->hidden('_estado_inmueble_id', array('name' => '_estado_inmuebl
 
 
       $placeholder = 'tipo de inmueble, zona, municipio, colegios, metro, autobús, zonas de ocio...';
-      echo $this->App->horizontalInput('Inmueble.descripcion', 'Descripci&oacute;n completa:', array('rows' => 6, 'placeholder' => $placeholder));
+      echo $this->App->horizontalInput('Inmueble.descripcion', "Descripci&oacute;n completa:<br><small><span style='color:#888'>($placeholder)</span></small>", array('rows' => 6, 'placeholder' =>  $placeholder));
       echo $this->App->horizontalInput('Inmueble.descripcion_abreviada', 'Descripci&oacute;n abreviada:<br><span>(max. 500 caracteres)</span>', array('rows' => 4, 'maxlength' => 500));
       echo $this->App->horizontalInput('Inmueble.observaciones_pvi', 'Observaciones particular vende:<br><span>(max. 250 caracteres)</span>', array('rows' => 2, 'maxlength' => 250));
       echo $this->App->horizontalTextarea('Inmueble.video', 'Vídeos:', array('rows' => 3, 'placeholder' => 'pegue la URL o URLs separadas por salto de línea'));

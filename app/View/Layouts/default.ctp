@@ -18,15 +18,21 @@ $this->Html->css(['bootstrap.min.css', 'bootstrap-datetimepicker.min', 'alfainmo
   <head>
     <?php echo $this->Html->charset(); ?>
     <title><?php echo $title_for_layout . ' : ' . $title ?></title>
-    <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?key=Aqfs7CzJhu8QXpKYvNvVOUmcPjD5wfDqi2sUqsjLiMqAs6Vz-49N-1oy06OscqOl&callback=mapCallBack' async defer></script>
     <?php
     echo $this->Html->meta('icon');
 
     echo $this->fetch('meta');
     echo $this->fetch('css');
+    ?>
+      <script type='text/javascript' src='http://www.bing.com/api/maps/mapcontrol?callback=mapCallBack&key=AlbfYmi5eFUj9sj8Rh5tjTbeM00HeglGuPJZnfYFtDz7KiRfwedBBucu-mMpTRLa' async defer></script>
+      <?php
     echo $this->fetch('script');
     echo $this->fetch('header');
     ?>
+      <style type="text/css">
+          div.MicrosoftMap div[style*="50%"] { display:none; }
+      </style>
+
     <script type="text/javascript">
 
       var fields_changed = false;
@@ -64,6 +70,17 @@ $this->Html->css(['bootstrap.min.css', 'bootstrap-datetimepicker.min', 'alfainmo
         });
       });
     </script>
+      <!-- Smartsupp Live Chat script -->
+      <script type="text/javascript">
+          var _smartsupp = _smartsupp || {};
+          _smartsupp.key = '4e629f749ea68e9fafe884cc1c51938651e4028f';
+          window.smartsupp||(function(d) {
+              var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+              s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+              c.type='text/javascript';c.charset='utf-8';c.async=true;
+              c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+          })(document);
+      </script>
 
   </head>
   <body id="<?php echo strtolower('main-' . $this->name . '-' . $this->view); ?>" class="main-<?php echo strtolower($this->name) ?>">

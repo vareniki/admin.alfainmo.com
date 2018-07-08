@@ -34,14 +34,14 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller {
 
-	public $helpers = array(
+	public $helpers = [
 			'Html' => array('className' => 'TwitterBootstrap.BootstrapHtml'),
 			'Form' => array('className' => 'TwitterBootstrap.BootstrapForm'),
 			'Paginator' => array('className' => 'TwitterBootstrap.BootstrapPaginator'),
-			'Js', 'Number', 'App');
+			'Js', 'Number', 'App'];
 
-	public $components = array('Session', 'Auth', 'Alfa');
-	public $uses = array('TipoMoneda');
+	public $components = ['Session', 'Auth', 'Alfa'];
+	public $uses = ['TipoMoneda', 'SolicitudVisita'];
 
   private $flashed = array();
 
@@ -57,16 +57,16 @@ class AppController extends Controller {
 		if (!is_null($user['agencia_id']) ) {
 			$this->set('agencia', $this->Session->read('agencia'));
 		} else {
-			$this->set('agencia', array());
+			$this->set('agencia', []);
 		}
 		if (!is_null($user['agente_id'])) {
 			$this->set('agente', $this->Session->read('agente'));
 		} else {
-			$this->set('agente', array());
+			$this->set('agente', []);
 		}
 		$this->set('user', $user);
 
-		$monedas = array();
+		$monedas = [];
 
 		// Para una agencia normal carga los tipos de moneda
 		$agencia = $this->Session->read('agencia');
@@ -97,9 +97,7 @@ class AppController extends Controller {
 					$symbol = $moneda['TipoMoneda']['symbol'];
 					$monedas[$id] = $symbol;
 				}
-
 			}
-
 		}
 
 		$this->set('agentes', $this->Session->read('agentes'));
@@ -112,6 +110,20 @@ class AppController extends Controller {
 				'is_coordinador' => $this->isCoordinador(),
 				'is_consultor' => $this->isConsultor(),
 				'is_editor' => $this->isEditor()));
+
+		// Comprueba si hay mensajes pendientes
+    if ($user != null) {
+      $solicitudes = $this->SolicitudVisita->find('count', [
+          'fields' => 'SolicitudVisita.id',
+          'conditions' => [
+              'SolicitudVisita.dst_respuesta_id = 0',
+              'SolicitudVisita.dst_agencia_id = ' . $user['agencia_id']]
+      ]);
+      $this->set('solicitudes', $solicitudes);
+    } else {
+      $this->set('solicitudes', []);
+    }
+
 	}
 
 	/*

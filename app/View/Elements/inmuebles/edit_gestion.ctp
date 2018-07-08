@@ -12,6 +12,12 @@ echo '<div class="row"><div class="col-xs-8 col-xs-offset-4"><div class="alert a
 	y fotos. De lo contrario se quedar&aacute; en el mercado por captar y ese inmueble puede ser captado por otro compa&ntilde;ero de la
 	red y no sale publicado en ning&uacute;n medio de Internet.</div></div></div>';
 echo $this->App->horizontalSelect('Inmueble.tipo_contrato_id', 'Tipo de encargo:', $tiposContrato, array('size' => 5, 'labelClass' => 'obligat'));
+
+if ($info['Inmueble']['es_parvenca'] == 't') {
+  echo $this->App->horizontalSelect('Inmueble.tipo_parvenca_id', 'Tipo Parvenca:', $tiposParvenca, array('size' => 3, 'labelClass' => 'obligat'));
+}
+
+echo $this->App->horizontalInput('Inmueble.telefono_ip', 'Teléfono IP:', array('maxlength' => 15));
 echo $this->App->horizontalSelect('Inmueble.medio_captacion_id', 'Medio de captación:', $mediosCaptacion, array('size' => 8));
 ?>
 <div id="InmuebleInfoBaja">
@@ -50,6 +56,24 @@ echo $this->App->horizontalSelect('Inmueble.medio_captacion_id', 'Medio de capta
 		</div>
 	</div>
 <?php endif; ?>
+
+<?php if ($info['Inmueble']['es_parvenca'] == 't'): ?>
+    <div class="form-group">
+        <label class="control-label col-xs-5 col-lg-4 col-sm-4 obligat">Honorarios Parvenca:</label>
+        <div class="controls col-xs-5 col-lg-6 col-sm-6">
+          <?php
+          echo $this->Form->input('Inmueble.honor_parvenca', array(
+              'type' => 'number', 'min' => 1, 'max' => '999999', 'class' => 'form-control', 'label' => false));
+          ?>
+        </div>
+        <div class="controls col-xs-2 col-lg-2 col-sm-2">
+          <?php echo $this->Form->select('Inmueble.honor_parvenca_unid', array('e' => $moneda, '%' => '%'), array('class' => 'form-control', 'label' => false)); ?>
+        </div>
+    </div>
+<?php endif; ?>
+
+
+
 <div class="form-group">
 	<label class="control-label col-xs-5 col-lg-4 col-sm-4">Precio propietario:</label>
 	<div class="controls col-xs-5 col-lg-6 col-sm-6">
@@ -72,12 +96,12 @@ echo $this->App->horizontalSelect('Inmueble.medio_captacion_id', 'Medio de capta
 	</div>
 </div>
 <br>
-<div class="form-group">
+<div id="HonorariosCompartidosInfo" class="form-group">
   <label class="control-label col-xs-5 col-lg-4 col-sm-4 obligat">Honorarios compartidos:</label>
   <div class="controls col-xs-5 col-lg-6 col-sm-6">
     <?php
     echo $this->Form->input('Inmueble.honor_compartidos', array(
-      'type' => 'number', 'min' => 50, 'max' => 99, 'class' => 'form-control', 'label' => false, 'placeholder' => 'entre el 50% y el 100%'));
+      'type' => 'number', 'min' => 40, 'max' => 100, 'class' => 'form-control', 'label' => false, 'placeholder' => 'entre el 40% y el 100%'));
     ?>
   </div>
   <div class="controls col-xs-2 col-lg-2 col-sm-2">

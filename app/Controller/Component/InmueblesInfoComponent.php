@@ -954,6 +954,45 @@ class InmueblesInfoComponent extends SessionComponent {
 		return $conditions;
 	}
 
+  /**
+   * @param $info
+   *
+   * @return bool
+   */
+	public function comprobarRefCatastral($info) {
+
+	  return true;
+	  /*
+    if ( !empty($info['Inmueble']['ref_catastral'])) {
+      $ref = strtoupper($info['Inmueble']['ref_catastral']);
+      if ((substr($ref, 0, 7) >= '0000000' && substr($ref, 0, 7) <= '9999999')
+            && (substr($ref, 7, 2) >= 'AA' && substr($ref, 7, 2) <= 'ZZ')
+            && (substr($ref, 9, 4) >= '0000' && substr($ref, 9, 4) <= '9999')
+            && (substr($ref, 13, 1) >= 'A' && substr($ref, 13, 1) <= 'Z')
+            && (substr($ref, 14, 4) >= '0000' && substr($ref, 14, 4) <= '9999')
+            && (substr($ref, 18, 2) >= 'AA' && substr($ref, 18, 2) <= 'ZZ')) {
+
+        $result = true;
+      } else {
+
+        if ((substr($ref, 0, 5) >= '00000' && substr($ref, 0, 5) <= '99999')
+            && (substr($ref, 5, 1) >= 'A' && substr($ref, 5, 1) <= 'Z')
+            && (substr($ref, 6, 12) >= '000000000000' && substr($ref, 9, 4) <= '999999999999')
+            && (substr($ref, 18, 2) >= 'AA' && substr($ref, 18, 2) <= 'ZZ')) {
+
+          $result = true;
+
+        } else {
+          $result = false;
+        }
+
+      }
+    } else {
+      $result = true;
+    }
+    return $result;*/
+  }
+
 	/**
 	 * @param $info
 	 * @param $campos
@@ -963,6 +1002,7 @@ class InmueblesInfoComponent extends SessionComponent {
 	public function comprobarDatosObligatorios( $info, &$campos ) {
 
 		$result = true;
+		$parvenca = (isset($info['Inmueble']['es_parvenca']) && $info['Inmueble']['es_parvenca'] == 't');
 
 		$campos = '';
 
@@ -970,8 +1010,15 @@ class InmueblesInfoComponent extends SessionComponent {
 		$precio += ( isset( $info['Inmueble']['precio_venta'] ) ) ? (int) $info['Inmueble']['precio_venta'] : 0;
 		$precio += ( isset( $info['Inmueble']['precio_alquiler'] ) ) ? (int) $info['Inmueble']['precio_alquiler'] : 0;
 		$precio += ( isset( $info['Inmueble']['precio_traspaso'] ) ) ? (int) $info['Inmueble']['precio_traspaso'] : 0;
+		if ($parvenca) {
+      $precio += ( isset( $info['Inmueble']['precio_parvenca'] ) ) ? (int) $info['Inmueble']['precio_parvenca'] : 0;
+    }
+
 		if ( $precio == 0 ) {
 			$campos .= ', precio de venta, alquiler o traspaso';
+			if ($parvenca) {
+			  $campos .= ' o parvenca';
+      }
 			$result = false;
 		}
 
@@ -982,13 +1029,17 @@ class InmueblesInfoComponent extends SessionComponent {
 				$result = false;
 			}
 		}
+		if ($parvenca && empty($info['Inmueble']['precio_parvenca'])) {
+		    $campos .= ', precio parvenca';
+		    $result = false;
+    }
 
 		if ( isset( $info['Inmueble']['agente_id'] ) && empty( $info['Inmueble']['agente_id'] ) ) {
 			$campos .= ', agente comercial';
 			$result = false;
 		}
 
-		$datos = array(
+		$datos = [
 				'pais_id' => 'país',
 				'nombre_calle' => 'calle',
 				'numero_calle' => 'número de la calle',
@@ -997,9 +1048,18 @@ class InmueblesInfoComponent extends SessionComponent {
 				'provincia' => 'provincia',
 				'zona' => 'zona',
 				'tipo_contrato_id' => 'tipo de encargo',
-				'honor_agencia' => 'honorarios agencia',
-				'honor_compartidos' => 'honorarios compartidos'
-		);
+				'honor_agencia' => 'honorarios agencia'
+		];
+
+		// Honorarios compartidos, no obligatorios en "Particular Vende"
+    if (isset($info['Inmueble']['tipo_contrato_id']) && $info['Inmueble']['tipo_contrato_id'] != 'PV' ) {
+      $datos['honor_compartidos'] = 'honorarios compartidos';
+    }
+
+    if ($parvenca) {
+      $datos['tipo_parvenca_id'] = 'tipo parvenca';
+      $datos['honor_parvenca'] = 'honorarios parvenca';
+    }
 
 		if ( $info['Inmueble']['es_venta'] && $info['Inmueble']['es_alquiler'] ) {
 			$datos['honor_agencia_alq'] = 'honorarios agencia alquiler';

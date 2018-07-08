@@ -79,19 +79,8 @@ $url_ajax_domibus = $this->Html->assetUrl('');
 		</div>
 	<?php endif; ?>
 </div>
-
-<div class="alert alert-warning" role="alert">
-	<p>En la aplicación en <a href="/herramientas/index">Herramientas</a> hemos colgado una nueva plantilla para que puedas hacer tu ficha de escaparate de una forma muy sencilla.</p>
-	<p>Al abrir la ficha de escaparate verás que se abre una ficha en Word, lo único que tienes que hacer es copiar los campos que tienes en la ficha
-de características y pegarlos en el texto y lo mismo con las fotos.</p>
-<p>Si tienes algún problema nos llamas y lo hacemos contigo por teléfono.</p>
-<p>Un saludo.</p>
-</div>
 <div style="text-align: center">
 	 <?php echo $this->Html->image('logo-20-aniversario-g.png', array('width' => '449px')); ?><br><br>
-</div>
-<div style="text-align: center">
-	 <img src="http://admin.alfainmo.com/img/imagen_portada.jpg" alt="Expresión del cambio" style="width:320px">
 </div>
 <br>
 <div class="text-center">

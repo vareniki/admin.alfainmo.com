@@ -18,7 +18,7 @@ class InmueblesController extends AppController {
     'PlantaPiso', 'PuertaPiso', 'TipoInmueble', 'TipoPiso', 'TipoChalet', 'TipoGaraje', 'TipoOficina', 'TipoTerreno',
     'TipoAA', 'SubtipoCalefaccion', 'TipoCalefaccion', 'TipoAguaCaliente', 'TipoOrientacion', 'TipoSuelo',
     'TipoPuerta', 'TipoVentana', 'TipoTendedero', 'TipoEquipamiento', 'TipoCableado', 'EstadoConservacion',
-    'Contacto', 'TipoContrato', 'MedioCaptacion', 'InteriorExterior', 'CalificacionEnergetica', 'LocalizacionLocal',
+    'Contacto', 'TipoContrato', 'TipoParvenca', 'MedioCaptacion', 'InteriorExterior', 'CalificacionEnergetica', 'LocalizacionLocal',
     'HorarioContacto', 'TipoImagen', 'TipoEvento', 'MotivoBaja', 'EstadoInmueble', 'Provincia', 'Poblacion', 'Agente', 'InmuebleWeb');
 
   private static $tiposInmueble = array(
@@ -145,8 +145,7 @@ class InmueblesController extends AppController {
       'TipoMoneda.symbol',
 		  'Agente.id',
       'Agente.nombre_contacto'),
-
-        'order' => array('Inmueble.numero_agencia' => 'asc', 'Inmueble.codigo' => 'desc')
+       'order' => array('Inmueble.numero_agencia' => 'asc', 'Inmueble.codigo' => 'desc')
   );
 
 
@@ -382,6 +381,13 @@ class InmueblesController extends AppController {
     return $this->Alfa->getTypologyInfo('TipoContrato', function() use ($CI) {
           return $CI->TipoContrato->find('all', array('order' => 'id', 'callbacks' => false));
         });
+  }
+
+  private function getTiposParvenca() {
+    $CI = $this;
+    return $this->Alfa->getTypologyInfo('TipoParvenca', function() use ($CI) {
+      return $CI->TipoParvenca->find('all', array('order' => 'id', 'callbacks' => false));
+    });
   }
 
   private function getMediosCaptacion() {
@@ -824,6 +830,12 @@ class InmueblesController extends AppController {
 						  $aceptar_estado = false;
 					  }
 
+					  // Comprueba que la referencia catastral tenga el formato correct
+            if (!$this->InmueblesInfo->comprobarRefCatastral($info)) {
+					    $this->setDangerFlash( 'La referencia catastral no es correcta. Comprueba que tiene el siguiente formato: <strong>9999999XX9999X99999</strong>' );
+              $aceptar_estado = false;
+					  }
+
 					  // Si los datos obligatorios son correctos y el estado anterior es '01' o '05' entonces comprueba la NO existencia de duplicados
 					  if ( $aceptar_estado && ( $info['_estado_inmueble_id'] == '01' || $info['_estado_inmueble_id'] == '05' ) ) {
 						  $conditions = $this->InmueblesInfo->getDuplicadosSql( $info );
@@ -849,7 +861,12 @@ class InmueblesController extends AppController {
 
 				  } else if ( $info['Inmueble']['estado_inmueble_id'] == '01' ) {
 
-					  // Comprobación de posibles duplicados siempre que estemos en la solapa de dirección.
+            // Comprueba que la referencia catastral tenga el formato correct
+            if (!$this->InmueblesInfo->comprobarRefCatastral($info)) {
+              $this->setDangerFlash( 'La referencia catastral no es correcta. Comprueba que tiene uno de los siguientes formatos: <strong>9999999XX9999X9999XX</strong> / <strong>99999X999999999999XX</strong></strong>' );
+            }
+
+            // Comprobación de posibles duplicados siempre que estemos en la solapa de dirección.
 					  if ( $this->request->data['_checkdup'] == '1' ) {
 						  $conditions = $this->InmueblesInfo->getDuplicadosSql( $info );
 						  if ( ! empty( $conditions ) ) {
@@ -930,6 +947,9 @@ class InmueblesController extends AppController {
 	  $this->set( 'paises', $this->getPaises() );
 	  $this->set( 'horariosContacto', $this->getHorariosContacto() );
 	  $this->set( 'tiposContrato', $this->getTiposContrato() );
+	  if ($info['Inmueble']['es_parvenca'] == 't') {
+      $this->set( 'tiposParvenca', $this->getTiposParvenca() );
+    }
 	  $this->set( 'mediosCaptacion', $this->getMediosCaptacion() );
 	  $this->set( 'motivosBaja', $this->getMotivosBaja() );
 	  $this->set( 'estadosInmueble', $this->getEstadosInmueble() );
@@ -954,6 +974,16 @@ class InmueblesController extends AppController {
         unset($portales['05']);
         unset($noPortales['05']);
       }
+    }
+    
+    switch ($info['TipoInmueble']['id']) {
+      case '03':
+      case '04':
+      case '06':
+      case '07':
+        break;
+      default:
+        unset($portales['11']);
     }
 
 	  $this->set( 'portales', $portales );

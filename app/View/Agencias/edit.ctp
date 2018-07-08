@@ -96,6 +96,7 @@ echo $this->App->horizontalInput('Agencia.coord_y', 'Longitud:');
 echo '<hr>';
 echo $this->App->horizontalInput('Agencia.nombre_contacto', '<span>[*]</span> Nombre del contacto:', array('maxlength' => 50, 'required' => true));
 echo $this->App->horizontalInput('Agencia.email_contacto', '<span>[*]</span> EMail:', array('type' => 'email', 'maxlength' => 50, 'required' => true));
+echo $this->App->horizontalInput('Agencia.email_gdpr', 'EMail GDPR:', array('type' => 'email', 'maxlength' => 50));
 
 echo '<hr>';
 echo '<p><small>S&oacute;lo a efectos de la compatibilidad con la antigua Web</small></p>';
@@ -137,6 +138,18 @@ echo $this->App->horizontalTextarea('Agencia.observaciones', 'Observaciones:', a
             echo $this->Form->checkbox('Agencia.central_web', array('value' => 't', 'label' => 'sí'));
           } else {
             echo $this->Form->checkbox('Agencia.central_web', array('value' => 't', 'label' => 'sí', 'checked' => false));
+          }
+          ?>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-md-5 col-lg-4 col-sm-4">Parvenca:</label>
+        <div class="col-md-7 col-lg-8 col-sm-8">
+          <?php
+          if ($edit) {
+            echo $this->Form->checkbox('Agencia.parvenca', array('value' => 't', 'label' => 'activo'));
+          } else {
+            echo $this->Form->checkbox('Agencia.parvenca', array('value' => 't', 'label' => 'activo', 'checked' => true));
           }
           ?>
         </div>

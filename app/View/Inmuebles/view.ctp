@@ -11,11 +11,12 @@ echo $this->element('inmuebles/common_view_left');
 $this->end();
 
 $this->start('header');
-echo $this->Html->script(array('alfainmo.docs'));
+echo $this->Html->script(['alfainmo.docs']);
 ?>
 <script type="text/javascript">
 	var eventsLoaded=false;
 	var demandasLoaded=false;
+	var solicitudesLoaded=false;
 	$(document).ready(function () {
 		initGalleryButtons();
 
@@ -33,12 +34,36 @@ echo $this->Html->script(array('alfainmo.docs'));
 						$("#demandasForm").ajaxSubmit({	target: "#demandasForm_results"	});
 						demandasLoaded = true;
 					}
-					break
+					break;
+
+                case '#tab7':
+                    if (!solicitudesLoaded) {
+                        $("#solicitudesForm").ajaxSubmit({	target: "#solicitudesForm_results"	});
+                        solicitudesLoaded = true;
+                    }
+                    break;
 			}
 
 		});
 
 	});
+
+	function solicitarVisita(inmuebleId, agenciaDstId, referencia) {
+
+        var comentarios = prompt("SOLICITUD DE VISITA:\r\n\Indique el día y hora propuesta, y/o comentarios para la oficina:", "");
+        if (comentarios != null && comentarios != '') {
+
+            var comentBase64 = btoa(comentarios);
+            $.ajax("<?php echo $this->base; ?>/ajax/getSolicitarVisita/" + inmuebleId + "/" + agenciaDstId + "/" + comentBase64, {
+                /*dataType: 'json',*/
+                success: function (data) {
+                    alert("Se ha solicitado la visita sobre la referencia " + referencia + " a la agencia captadora."
+                        + " En el icono que representa una carta dentro del menú, podrá llevar el seguimiento de las solicitudes de visita.");
+                }
+            });
+        }
+    }
+
 </script>
 <?php
 $this->end();
@@ -58,6 +83,7 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 	<?php endif; ?>
 	<li><a href="#tab5" data-toggle="tab">Seguimiento</a></li>
 	<li><a href="#tab6" data-toggle="tab">Demandantes</a></li>
+    <li><a href="#tab7" data-toggle="tab">Solicitud de Visita</a></li>
 </ul>
 <div class="tab-content">
 <div id="tab1" class="tab-pane active ficha">
@@ -194,6 +220,7 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 		$this->Model->printIfExists($info, 'modified', array('label' => 'Fecha de modificación', 'format' => 'date'));
 		$this->Model->printIfExists($info, 'description', array('label' => 'Estado', 'model' => 'EstadoInmueble'));
 		$this->Model->printIfExists($info, 'description', array('label' => 'Tipo de encargo', 'model' => 'TipoContrato'));
+        $this->Model->printIfExists($info, 'telefono_ip', array('label' => 'Tel&eacute;fono IP'));
 		$this->Model->printIfExists($info, 'description', array('label' => 'Medio captación', 'model' => 'MedioCaptacion'));
 		$this->Model->printIfExists($info, 'fecha_captacion', array('label' => 'Fecha de captación', 'format' => 'date'));
 		$this->Model->printIfExists($info, 'observaciones', array('label' => 'Observaciones internas', 'format' => 'links_html'));
@@ -371,6 +398,17 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 	?>
 	<div id="demandasForm_results"></div>
 </div>
+<div id="tab7" class="tab-pane">
+  <?php
+  $url_base_64 = base64_encode($this->Html->url($this->request->data));
+
+  echo $this->Form->create(false, array('id' => 'solicitudesForm', 'url' => array('action' => 'getSolicitudesVisitasInmueble', 'controller' => 'ajax')));
+  echo $this->Form->hidden('inmueble_id', array('name' => 'inmueble_id', 'value' => $info['Inmueble']['id']));
+  echo $this->Form->hidden('url', array('name' => 'url', 'value' => $url_base_64));
+  echo $this->Form->end();
+  ?>
+    <div id="solicitudesForm_results"></div>
+</div>
 </div>
 </div>
 <?php if ($info['Inmueble']['estado_inmueble_id'] == '02'): ?>
@@ -381,16 +419,26 @@ $ver_todo = $profile['is_central'] || ($agencia['Agencia']['id'] == $info['Agenc
 	</div>
 <?php endif; ?>
 <hr>
-<div class="text-right">
-	<?php
-	echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/inmueble_id/' . $info['Inmueble']['id'], array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n\n";
-	echo $this->Html->link('Ficha de escaparate', 'fichaEscaparate/' . $info['Inmueble']['id'], array('escape' => false, 'class' => 'btn btn-default btn-sm')) . "\n";
-	echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/inmuebles/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
+<div class="row">
+    <div class="col-xs-4">
+        <?php if ($info['Inmueble']['estado_inmueble_id'] == '02' &&  $info['Inmueble']['agencia_id'] != $agencia['Agencia']['id']) {
+            $inmuebleId = $info['Inmueble']['id'];
+            $agenciaDstId = $info['Inmueble']['agencia_id'];
+            $referencia = $info['Inmueble']['referencia'];
+            echo $this->Html->link('<i class="glyphicon glyphicon-flash"></i> solicitar visita', "javascript:solicitarVisita($inmuebleId, $agenciaDstId, '$referencia')", array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "&nbsp;&nbsp;";
+        }?>
+    </div>
+    <div class="col-xs-8 text-right">
+      <?php
+      echo $this->Html->link('<i class="glyphicon glyphicon-pencil"></i> nuevo apunte', '/agenda/add/inmueble_id/' . $info['Inmueble']['id'], array('escape' => false, 'class' => 'btn btn-sm btn-default')) . "\n\n";
+      echo $this->Html->link('Ficha de escaparate', 'fichaEscaparate/' . $info['Inmueble']['id'], array('escape' => false, 'class' => 'btn btn-default btn-sm')) . "\n";
+      echo $this->Html->link('<i class="glyphicon glyphicon-list"></i> volver al listado', '/inmuebles/index', array('class' => 'btn btn-default btn-sm', 'escape' => false)) . "&nbsp;";
 
-	$can_edit = $this->Inmuebles->canEdit($profile, $info, $agencia, $agente);
-	if ($can_edit) {
-		$edit = 'edit/' . $info['Inmueble']['id'];
-		echo $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', $edit, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "&nbsp;\n";
-	}
-	?>
+      $can_edit = $this->Inmuebles->canEdit($profile, $info, $agencia, $agente);
+      if ($can_edit) {
+        $edit = 'edit/' . $info['Inmueble']['id'];
+        echo $this->Html->link('<i class="glyphicon glyphicon-edit"></i> editar', $edit, array('class' => 'btn btn-sm btn-default', 'escape' => false)) . "&nbsp;\n";
+      }
+      ?>
+    </div>
 </div>

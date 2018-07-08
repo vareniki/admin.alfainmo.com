@@ -1,5 +1,7 @@
 <?php $this->start('header');
 
+echo $this->Html->script(['//maps.google.com/maps/api/js?sensor=false&key=AIzaSyAr6xxQvPWvBslfoELkCuWznJ9Kw4j9-9c']);
+
 if (!empty($this->request->data['pais_id'])) {
 	$pais_id = $this->request->data['pais_id'];
 } else {
@@ -30,6 +32,9 @@ if (isset($lats_lng[$pais_id])) {
     var drawingTools = null;
     var drawingManager = null;
 
+    var geocoder = null;
+    var localizaciones = null;
+
     var capitalLatLng = [];
 
     <?php foreach ($lats_lng as $key => $value) {
@@ -38,13 +43,88 @@ if (isset($lats_lng[$pais_id])) {
         echo "capitalLatLng[$key]=[$value1,$value2];";
     } ?>
 
+
+    /**
+     *
+     * @param loc
+     * @returns {Object}
+     */
+    function convertMap2Info(loc) {
+        var item = new Object();
+
+        item.calle = "";
+        item.numero = "";
+        item.cp = "";
+        item.poblacion = "";
+        item.provincia = "";
+        item.direccion = "";
+        item.provincia_id = "";
+
+        for (var j = 0; j < loc.address_components.length; j++) {
+            var obj = loc.address_components[j];
+            var type = obj['types'][0];
+            switch (type) {
+                case 'street_number':
+                    item.numero = loc.address_components[j]['long_name'];
+                    break;
+                case 'route':
+                    item.calle = loc.address_components[j]['long_name'];
+                    break;
+                case 'postal_code':
+                    item.cp = loc.address_components[j]['long_name'];
+                    item.provincia_id = item.cp.substr(0, 2);
+                    break;
+                case 'locality':
+                    item.poblacion = loc.address_components[j]['long_name'];
+                    break;
+                case 'administrative_area_level_1':
+                    if (item.provincia == '') {
+                        item.provincia = loc.address_components[j]['long_name'];
+                    }
+                    break;
+                case 'administrative_area_level_2':
+                    item.provincia = loc.address_components[j]['long_name'];
+
+                    break;
+            }
+        }
+        item.lat = loc.geometry.location.lat();
+        item.lng = loc.geometry.location.lng();
+        item.direccion = loc.formatted_address;
+
+        return item;
+    }
+
+
+
+    /**
+     *
+     * @param direccion
+     * @param callback
+     */
+    var getMapAddresses = function (direccion, callback) {
+        if (geocoder == null) {
+            geocoder = new google.maps.Geocoder();
+        }
+
+        geocoder.geocode({'address': direccion}, function (results, status) {
+
+            if (status != google.maps.GeocoderStatus.OK) {
+                return;
+            }
+
+            $.map(results, function (loc) {
+                callback(convertMap2Info(loc));
+            });
+        });
+    }
+
     function maps_initializeDialog() {
 
         if (searchMap != null) {
             return;
         }
         searchMap = new Microsoft.Maps.Map('#map-search-canvas', {
-            //credentials: 'Aqfs7CzJhu8QXpKYvNvVOUmcPjD5wfDqi2sUqsjLiMqAs6Vz-49N-1oy06OscqOl',
             center: new Microsoft.Maps.Location(<?php echo $lat_lng[0] ?>, <?php echo $lat_lng[1] ?>),
             disableZooming: false,
             mapTypeId: Microsoft.Maps.MapTypeId.road, zoom: 16 });
@@ -75,6 +155,7 @@ if (isset($lats_lng[$pais_id])) {
                 maps_createShapes();
             });
         });
+
     }
 
     function maps_getPolygonsFieldArray() {
@@ -123,18 +204,39 @@ if (isset($lats_lng[$pais_id])) {
     }
 
     function maps_initializeSearch() {
-        Microsoft.Maps.loadModule('Microsoft.Maps.AutoSuggest', function () {
-            var options = {
-                maxResults: 5,
-                map: searchMap
-            };
-            var manager = new Microsoft.Maps.AutosuggestManager(options);
-            manager.attachAutosuggest('#map-search-input', '#map-search-container', map_searchResults);
+
+        $("#btn-searchInput").on("click", function() {
+
+            var direccion = $("#map-search-input").val();
+
+            if (direccion.length < 3) {
+                alert("Debe escribir al menos 3 caracteres.");
+                return;
+            }
+            direccion += ",España";
+
+            localizaciones = [];
+            getMapAddresses(direccion, function (item) {
+                localizaciones[localizaciones.length] = item;
+
+                searchMap.setView({
+                    center: new Microsoft.Maps.Location(item.lat, item.lng),
+                    zoom: 15
+                });
+
+                return;
+                //var html = '<p><a class="bootbox-close-button" href="#" rel="' + localizaciones.length + '">' + item.direccion + '</a></p>';
+                //$("#buscarMapa_results").append(html);
+            });
+
         });
     }
 
     function map_searchResults(item) {
-        drawingManager.clear();
+        if (drawingManager.getPrimitives()) {
+            drawingManager.clear();
+        }
+
         searchMap.entities.clear();
         searchMap.setView({ bounds: item.bestView, zoom: 14 });
     }
@@ -161,6 +263,7 @@ if (isset($lats_lng[$pais_id])) {
             $("#busqueda-mapBtn_clear").removeClass("disabled");
             $("#q").val("");
         });
+
     });
 </script>
 <?php $this->end(); ?>
@@ -170,7 +273,12 @@ if (isset($lats_lng[$pais_id])) {
 		<div class="modal-content">
 			<div class="modal-header">
                 <div class="col-xs-6">
-                    <div id="map-search-container"><input id="map-search-input" class="form-control" type="text" placeholder="B&uacute;squeda" autocomplete="off" /></div>
+                    <div id="map-search-container">
+                        <form class="form-inline">
+                        <input id="map-search-input" class="form-control" type="text" placeholder="B&uacute;squeda" autocomplete="off" />
+                        <button id="btn-searchInput" type="button" class="btn btn-default">Buscar</button>
+                        </form>
+                    </div>
                 </div>
                 <div class="col-xs-6 text-right"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button></div>
 			</div>
